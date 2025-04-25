@@ -1,0 +1,11 @@
+stages:
+  - test
+
+test-runner:
+  stage: test
+  tags:
+    - build  # match the runner's tag you used in helm (--set runners.tags)
+  script:
+    - echo "Runner is working!"
+    - uname -a
+    - sleep 5

@@ -20,25 +20,27 @@ detect_changed_folders:
   stage: detect_changes
   script:
     - |
-      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
-        # In merge request context
-        CHANGED_FOLDERS=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA | xargs -I{} dirname {} | sort -u | grep -v "^\.$" | tr '\n' ' ')
+      # Get the list of changed files in Application-Code directory
+      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
+      
+      # Extract the top-level directories that changed
+      CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u)
+      
+      # Output the changed folders
+      echo "Changed folders in Application-Code:"
+      if [ -z "$CHANGED_DIRS" ]; then
+        echo "No changes detected in Application-Code directory"
       else
-        # In branch context
-        CHANGED_FOLDERS=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | xargs -I{} dirname {} | sort -u | grep -v "^\.$" | tr '\n' ' ')
+        echo "$CHANGED_DIRS"
+        # Optionally save to a file for use in later stages
+        echo "$CHANGED_DIRS" >> $GITLAB_ENV
       fi
-    - echo "CHANGED_FOLDERS=$CHANGED_FOLDERS"
-    - echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITLAB_ENV
 
-build-backend:
+build-containers:
   stage: build
   script:
+    - for FOLDER in $CHANGED_FOLDERS; do 
     - docker build -t $BE_IMAGE ./Application-Code/backend
-
-build-frontend:
-  stage: build
-  script:
-    - docker build -t $FE_IMAGE ./Application-Code/frontend
 
 trivy-image-scan:
   stage: scan

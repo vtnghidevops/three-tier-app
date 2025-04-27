@@ -30,7 +30,7 @@ trivy-scan:
   script:
     - mkdir -p $ARTIFACT_DIR
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $IMAGE >> $ARTIFACT_DIR/image-scan-results.txt; done
+    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $IMAGE >> $ARTIFACT_DIR/${IMAGE//[\/:]/_}-scan-results.txt; done
   artifacts:
     paths:
       - $ARTIFACT_DIR/image-scan-results.txt      

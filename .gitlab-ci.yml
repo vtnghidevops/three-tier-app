@@ -22,14 +22,13 @@ detect_changed_folders:
     - |
       if [ -n "$CI_MERGE_REQUEST_IID" ]; then
         # In merge request context
-        git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA > changed_files.txt
+        CHANGED_FOLDERS=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA | xargs -I{} dirname {} | sort -u | tr '\n' ' ')
       else
         # In branch context
-        git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA > changed_files.txt
+        CHANGED_FOLDERS=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | xargs -I{} dirname {} | sort -u | tr '\n' ' ')
       fi
-    - cat changed_files.txt | xargs -I{} dirname {} | sort -u > changed_folders.txt
-    - echo "Changed folders:"
-    - cat changed_folders.txt
+    - echo "CHANGED_FOLDERS=$CHANGED_FOLDERS"
+    - echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITLAB_ENV
 
 build-backend:
   stage: build

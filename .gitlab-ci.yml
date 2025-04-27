@@ -9,11 +9,15 @@ stages:
 
 build-backend:
   stage: build
+  services:
+    - docker:28-dind
   script:
     - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
 
 build-frontend:
   stage: build
+  services:
+    - docker:28-dind
   script:
     - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA ./Application-Code/frontend
 

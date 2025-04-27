@@ -1,9 +1,3 @@
-image: docker:28.1
-
-services:
-  - docker:28.1-dind
-
-
 variables:
   SHORT_SHA: $CI_COMMIT_SHA
 
@@ -14,14 +8,20 @@ before_script:
   - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
 build-push-backend:
+  image: docker
+  services: 
+    - docker:dind
   stage: build-push
   script:
     - docker build -t $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA ./Application-Code/backend
-    - docker push $REGISTRY_URL/$PROJECT_NAME/backend:$SHORT_SHA
+    - docker push $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA
 
 
 
 build-push-frontend:
+  image: docker
+  services: 
+    - docker:dind
   stage: build-push
   script:
     - docker build -t $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA ./Application-Code/frontend

@@ -4,33 +4,33 @@ stages:
   - approve
   - push
 
+variables:
+  TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
+  ARTIFACT_DIR: "trivy-results"  # Directory to store scan results
+  BE_IMAGE: $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
+  FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
+
 #before_script:
 #  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
 build-backend:
   stage: build
-  services:
-    - docker:28-dind
   script:
-    - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
+    - docker build -t $BE_IMAGE ./Application-Code/backend
 
 build-frontend:
   stage: build
-  services:
-    - docker:28-dind
   script:
-    - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA ./Application-Code/frontend
+    - docker build -t $FE_IMAGE ./Application-Code/frontend
 
 trivy-scan:
   stage: scan
-  image: aquasec/trivy:latest
-  services:
-    - docker:28-dind
-  variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_DRIVER: overlay2
   script:
-    - docker pull $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
+    - mkdir -p $ARTIFACT_DIR
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $BE_IMAGE > $ARTIFACT_DIR/image-scan-results.txt
+  artifacts:
+    paths:
+      - $ARTIFACT_DIR/image-scan-results.txt      
     # Filesystem scan (code scan)
     #- trivy fs --exit-code 0 --severity HIGH,CRITICAL --no-progress ./Application-Code
     

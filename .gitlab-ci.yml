@@ -1,11 +1,29 @@
-stages:
-  - test
+variables:
+  SHORT_SHA: $CI_COMMIT_SHA
 
-test-runner:
-  stage: test
-  tags:
-    - build  # match the runner's tag you used in helm (--set runners.tags)
+stages:
+  - build-push
+
+before_script:
+  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u robot:"$HARBOR_USERNAME" --password-stdin
+
+build-push-backend:
+  stage: build-push
   script:
-    - echo "Runner is working!"
-    - uname -a
-    - sleep 5
+    - docker build -t $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA ./Application-Code/backend
+    - docker push $REGISTRY_URL/$PROJECT_NAME/backend:$SHORT_SHA
+  rules:
+    - changes:
+        - Application-Code/backend/**/*
+
+
+build-push-frontend:
+  stage: build-push
+  script:
+    - docker build -t $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA ./Application-Code/frontend
+    - docker push $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA
+  rules:
+    - changes:
+        - Application-Code/frontend/**/*
+
+

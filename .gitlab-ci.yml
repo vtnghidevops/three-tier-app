@@ -36,8 +36,8 @@ detect_changed_folders:
       fi
     - echo "CHANGED_DIRS=$CHANGED_DIRS" > changed_dirs.env
   artifacts:
-    reports:
-      dotenv: changed_dirs.env
+    paths:
+      - changed_dirs.env
 
 build-containers:
   stage: build

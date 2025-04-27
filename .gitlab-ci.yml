@@ -39,8 +39,7 @@ detect_changed_folders:
 build-containers:
   stage: build
   script:
-    - for FOLDER in $CHANGED_FOLDERS; do 
-    - docker build -t $BE_IMAGE ./Application-Code/backend
+    - for FOLDER in $CHANGED_FOLDERS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$FOLDER:$CI_COMMIT_SHORT_SHA; done
 
 trivy-image-scan:
   stage: scan

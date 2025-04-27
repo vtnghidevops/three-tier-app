@@ -1,4 +1,5 @@
 stages:
+  - detect_changes
   - build
   - scan
   - approve
@@ -9,19 +10,31 @@ variables:
   ARTIFACT_DIR: "trivy-results"  # Directory to store scan results
   BE_IMAGE: $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
   FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
-  BASE_DIR: $Application-Code
 
 
-default:
-  before_script:
-    - export CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD "$BASE_DIR" | awk -F/ '{print $2}' | sort -u)
+#default:
+#  before_script:
 #  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+
+detect_changed_folders:
+  stage: detect_changes
+  script:
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        # In merge request context
+        git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA > changed_files.txt
+      else
+        # In branch context
+        git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA > changed_files.txt
+      fi
+    - cat changed_files.txt | xargs -I{} dirname {} | sort -u > changed_folders.txt
+    - echo "Changed folders:"
+    - cat changed_folders.txt
 
 build-backend:
   stage: build
   script:
     - docker build -t $BE_IMAGE ./Application-Code/backend
-    - echo $CHANGED_FOLDERS
 
 build-frontend:
   stage: build

@@ -1,4 +1,8 @@
-image: docker:28.1.1-cli
+image: docker:28.1
+
+services:
+  - docker:28.1-dind
+
 
 variables:
   SHORT_SHA: $CI_COMMIT_SHA
@@ -14,9 +18,7 @@ build-push-backend:
   script:
     - docker build -t $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA ./Application-Code/backend
     - docker push $REGISTRY_URL/$PROJECT_NAME/backend:$SHORT_SHA
-  rules:
-    - changes:
-        - Application-Code/backend/**/*
+
 
 
 build-push-frontend:
@@ -24,8 +26,6 @@ build-push-frontend:
   script:
     - docker build -t $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA ./Application-Code/frontend
     - docker push $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA
-  rules:
-    - changes:
-        - Application-Code/frontend/**/*
+
 
 

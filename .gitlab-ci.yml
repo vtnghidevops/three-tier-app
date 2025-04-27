@@ -25,6 +25,8 @@ build-frontend:
 
 trivy-scan:
   stage: scan
+  services:
+    - docker:dind
   script:
     - mkdir -p $ARTIFACT_DIR
     - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $BE_IMAGE > $ARTIFACT_DIR/image-scan-results.txt

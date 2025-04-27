@@ -33,7 +33,7 @@ trivy-scan:
     - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $IMAGE >> $ARTIFACT_DIR/${IMAGE//[\/:]/_}-scan-results.txt; done
   artifacts:
     paths:
-      - $ARTIFACT_DIR/image-scan-results.txt      
+      - $ARTIFACT_DIR/*-scan-results.txt      
     # Filesystem scan (code scan)
     #- trivy fs --exit-code 0 --severity HIGH,CRITICAL --no-progress ./Application-Code
     

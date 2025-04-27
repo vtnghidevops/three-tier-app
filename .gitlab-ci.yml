@@ -10,9 +10,11 @@ variables:
   BE_IMAGE: $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
   FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
   BASE_DIR: $Application-Code
-  CHANGED_FOLDERS: $(git diff --name-only origin/main...HEAD "$BASE_DIR" | awk -F/ '{print $2}' | sort -u)
 
-#before_script:
+
+default:
+  before_script:
+    - export CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD "$BASE_DIR" | awk -F/ '{print $2}' | sort -u)
 #  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
 
 build-backend:

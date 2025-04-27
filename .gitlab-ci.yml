@@ -16,9 +16,6 @@ build-push-backend:
 
 
 build-push-frontend:
-  image: docker:latest
-  services: 
-    - docker:dind
   stage: build-push
   script:
     - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$SHORT_SHA ./Application-Code/frontend

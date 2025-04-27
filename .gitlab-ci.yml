@@ -63,7 +63,7 @@ trivy-image-scan:
     #- trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE
 
 push-container:
-  stage: approve
+  stage: push
   script:
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - for IMAGE in $IMAGES; do docker push $IMAGE; done

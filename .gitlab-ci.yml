@@ -1,22 +1,39 @@
 stages:
-  - build-push
+  - build
+  - scan
+  - approve
+  - push
 
 before_script:
   - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
-build-push-backend:
-  stage: build-push
+build-backend:
+  stage: build
   script:
     - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
-    - docker push $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
 
-
-
-build-push-frontend:
-  stage: build-push
+build-frontend:
+  stage: build
   script:
     - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA ./Application-Code/frontend
-    - docker push $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
 
+trivy-scan:
+  stage: scan
+  image: aquasec/trivy:latest
+  services:
+    - docker:28-dind
+  script:
+    - docker pull $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
+    # Filesystem scan (code scan)
+    #- trivy fs --exit-code 0 --severity HIGH,CRITICAL --no-progress ./Application-Code
+    
+    # Container image scan
+    #- trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE
 
+review_findings:
+  stage: approve
+  script:
+    - echo "Review scan results and artifacts before pushing to registry"
+  when: manual
+  allow_failure: false
 

@@ -24,7 +24,7 @@ detect_changed_folders:
       CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
       
       # Extract the top-level directories that changed
-      CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u | tr '\n' ' ')
+      CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u )
       
       # Output the changed folders
       echo "Changed folders in Application-Code:"
@@ -43,6 +43,7 @@ build-containers:
   stage: build
   script:
     - cat changed_dirs.env
+    - CHANGED_DIRS=$(cat changed_dirs.env)
     - for FOLDER in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$FOLDER:$CI_COMMIT_SHORT_SHA; done
 
 trivy-image-scan:

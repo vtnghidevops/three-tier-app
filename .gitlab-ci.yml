@@ -7,7 +7,7 @@ stages:
   - build-push
 
 before_script:
-  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$"$HARBOR_USERNAME"' --password-stdin
+  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
 build-push-backend:
   stage: build-push

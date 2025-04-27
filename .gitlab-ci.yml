@@ -42,6 +42,7 @@ detect_changed_folders:
 build-containers:
   stage: build
   script:
+    - source changed_dirs.env
     - echo $CHANGED_DIRS
     - for FOLDER in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$FOLDER:$CI_COMMIT_SHORT_SHA; done
 

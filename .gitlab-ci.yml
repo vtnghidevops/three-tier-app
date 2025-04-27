@@ -22,6 +22,9 @@ trivy-scan:
   image: aquasec/trivy:latest
   services:
     - docker:28-dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_DRIVER: overlay2
   script:
     - docker pull $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
     # Filesystem scan (code scan)

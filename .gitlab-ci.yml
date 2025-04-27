@@ -13,8 +13,8 @@ build-push-backend:
     - docker:dind
   stage: build-push
   script:
-    - docker build -t $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA ./Application-Code/backend
-    - docker push $HARBOR_URL/$HARBOR_BE_PJ/backend:$SHORT_SHA
+    - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$SHORT_SHA ./Application-Code/backend
+    - docker push $HARBOR_URL/$PROJECT_NAME/backend:$SHORT_SHA
 
 
 
@@ -24,8 +24,8 @@ build-push-frontend:
     - docker:dind
   stage: build-push
   script:
-    - docker build -t $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA ./Application-Code/frontend
-    - docker push $HARBOR_URL/$HARBOR_FE_PJ/frontend:$SHORT_SHA
+    - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$SHORT_SHA ./Application-Code/frontend
+    - docker push $HARBOR_URL/$PROJECT_NAME/frontend:$SHORT_SHA
 
 
 

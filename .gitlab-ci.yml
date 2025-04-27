@@ -34,7 +34,7 @@ detect_changed_folders:
         echo "$CHANGED_DIRS"
         # Optionally save to a file for use in later stages
       fi
-    - echo "CHANGED_DIRS=$CHANGED_DIRS" > changed_dirs.env
+    - echo "$CHANGED_DIRS" > changed_dirs.env
   artifacts:
     paths:
       - changed_dirs.env
@@ -42,8 +42,7 @@ detect_changed_folders:
 build-containers:
   stage: build
   script:
-    - source changed_dirs.env
-    - echo $CHANGED_DIRS
+    - cat changed_dirs.env
     - for FOLDER in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$FOLDER:$CI_COMMIT_SHORT_SHA; done
 
 trivy-image-scan:

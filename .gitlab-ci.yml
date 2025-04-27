@@ -6,7 +6,6 @@ stages:
 
 variables:
   TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
-  ARTIFACT_DIR: "trivy-results"  # Directory to store scan results
   BE_IMAGE: $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
   FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
 
@@ -45,17 +44,29 @@ build-containers:
     - CHANGED_DIRS=$(cat changed_dirs.env)
     - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR; done
 
+trivy-code-scan:
+  stage: security_scan
+  services:
+    - docker:dind
+  script:
+    - mkdir code-scan-results
+    - CHANGED_DIRS=$(cat changed_dirs.env)
+    - for DIR in $CHANGED_DIRS; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
+  artifacts:
+    paths:
+      - code-scan-results/*-scan-results.txt     
+
 trivy-image-scan:
   stage: security_scan
   services:
     - docker:dind
   script:
-    - mkdir -p $ARTIFACT_DIR
+    - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $IMAGE >> $ARTIFACT_DIR/${IMAGE//[\/:]/_}-scan-results.txt; done
+    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${IMAGE//[\/:]/_}-scan-results.txt; done
   artifacts:
     paths:
-      - $ARTIFACT_DIR/*-scan-results.txt      
+      - image-scan-result/*-scan-results.txt      
     # Filesystem scan (code scan)
     #- trivy fs --exit-code 0 --severity HIGH,CRITICAL --no-progress ./Application-Code
     

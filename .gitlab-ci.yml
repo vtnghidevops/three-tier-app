@@ -1,6 +1,3 @@
-variables:
-  SHORT_SHA: $CI_COMMIT_SHA
-
 stages:
   - build-push
 
@@ -10,7 +7,7 @@ before_script:
 build-push-backend:
   stage: build-push
   script:
-    - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$SHORT_SHA ./Application-Code/backend
+    - docker build -t $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA ./Application-Code/backend
     - docker push $HARBOR_URL/$PROJECT_NAME/backend:$SHORT_SHA
 
 
@@ -18,7 +15,7 @@ build-push-backend:
 build-push-frontend:
   stage: build-push
   script:
-    - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$SHORT_SHA ./Application-Code/frontend
+    - docker build -t $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA ./Application-Code/frontend
     - docker push $HARBOR_URL/$PROJECT_NAME/frontend:$SHORT_SHA
 
 

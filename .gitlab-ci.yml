@@ -1,3 +1,5 @@
+image: docker:28.1.1-cli
+
 variables:
   SHORT_SHA: $CI_COMMIT_SHA
 

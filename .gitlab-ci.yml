@@ -29,8 +29,9 @@ trivy-scan:
     - docker:dind
   script:
     - mkdir -p $ARTIFACT_DIR
-    - IMAGES=($(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$"))
-    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed "${IMAGES[@]}" > $ARTIFACT_DIR/image-scan-results.txt
+    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
+    - IMAGES=$(echo "$IMAGES" | tr '\n' ' ')
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --ignore-unfixed $IMAGES > $ARTIFACT_DIR/image-scan-results.txt
   artifacts:
     paths:
       - $ARTIFACT_DIR/image-scan-results.txt      

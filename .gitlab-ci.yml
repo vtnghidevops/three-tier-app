@@ -8,7 +8,7 @@ before_script:
   - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
 build-push-backend:
-  image: docker
+  image: docker:latest
   services: 
     - docker:dind
   stage: build-push
@@ -19,7 +19,7 @@ build-push-backend:
 
 
 build-push-frontend:
-  image: docker
+  image: docker:latest
   services: 
     - docker:dind
   stage: build-push

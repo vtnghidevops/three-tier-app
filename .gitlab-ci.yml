@@ -51,7 +51,7 @@ trivy-code-scan:
   script:
     - mkdir code-scan-results
     - CHANGED_DIRS=$(cat changed_dirs.env)
-    - for DIR in $CHANGED_DIRS; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
+    - for DIR in $CHANGED_DIRS; do docker run --rm -v $(pwd):/app $TRIVY_IMAGE fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
   artifacts:
     paths:
       - code-scan-results/*-scan-results.txt     

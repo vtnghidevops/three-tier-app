@@ -33,8 +33,11 @@ detect_changed_folders:
       else
         echo "$CHANGED_DIRS"
         # Optionally save to a file for use in later stages
-        echo "$CHANGED_DIRS" >> $GITLAB_ENV
       fi
+    - echo "CHANGED_DIRS=$CHANGED_DIRS" > changed_dirs.env
+  artifacts:
+    reports:
+      dotenv: changed_dirs.env
 
 build-containers:
   stage: build

@@ -1,8 +1,7 @@
 stages:
   - detect_changes
   - build
-  - scan
-  - approve
+  - security_scan
   - push
 
 variables:
@@ -32,7 +31,7 @@ detect_changed_folders:
         echo "No changes detected in Application-Code directory"
       else
         echo "$CHANGED_DIRS"
-        # Optionally save to a file for use in later stages
+        # Save to a file for use in later stages
       fi
     - echo "$CHANGED_DIRS" > changed_dirs.env
   artifacts:
@@ -47,7 +46,7 @@ build-containers:
     - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR; done
 
 trivy-image-scan:
-  stage: scan
+  stage: security_scan
   services:
     - docker:dind
   script:
@@ -63,10 +62,11 @@ trivy-image-scan:
     # Container image scan
     #- trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE
 
-review_findings:
+push-container:
   stage: approve
   script:
-    - echo "Review scan results and artifacts before pushing to registry"
+    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
+    - for IMAGE in $IMAGES; do docker push $IMAGE; done
   when: manual
-  allow_failure: false
+
 

@@ -4,8 +4,8 @@ stages:
   - approve
   - push
 
-before_script:
-  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
+#before_script:
+#  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
 
 build-backend:
   stage: build

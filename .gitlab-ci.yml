@@ -11,7 +11,7 @@ variables:
   FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
 
 #before_script:
-#  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
+#  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
 
 build-backend:
   stage: build

@@ -40,6 +40,9 @@ build-containers:
   stage: build
   tags: 
     - image-related
+  variables:
+    DOCKER_HOST: tcp://localhost:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - echo "Waiting for Docker to be ready..."
     - until docker info >/dev/null 2>&1; do sleep 1; done
@@ -70,8 +73,9 @@ trivy-image-scan:
   stage: security_scan
   tags: 
     - image-related
-  services:
-    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - echo "Waiting for Docker to be ready..."
     - until docker info >/dev/null 2>&1; do sleep 1; done

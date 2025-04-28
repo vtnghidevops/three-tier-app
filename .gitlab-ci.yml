@@ -40,46 +40,26 @@ build-containers:
   stage: build
   tags: 
     - image-related
-  image: docker:27-dind
+  image: docker:28-dind
   services:
-    - docker:27-dind
+    - docker:28-dind
   script:
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)
     - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR; done
 
-# trivy-code-scan:
-#   stage: security_scan
-#   image: docker:latest
-#   services:
-#     - docker:dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#     DOCKER_HOST: tcp://docker:2375
-#     DOCKER_DRIVER: overlay2
-#   script:
-#     - echo "Waiting for Docker to be ready..."
-#     - until docker info >/dev/null 2>&1; do sleep 1; done
-#     - mkdir code-scan-results
-#     - CHANGED_DIRS=$(cat changed_dirs.env)
-#     - for DIR in $CHANGED_DIRS; do docker run --rm -v $(pwd):/app $TRIVY_IMAGE fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed /app/Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
-#   artifacts:
-#     paths:
-#       - code-scan-results/*-scan-results.txt     
-
 trivy-image-scan:
   stage: security_scan
   tags: 
     - image-related
-  image: docker:27-dind
+  image: docker:28-dind
   services:
-    - docker:27-dind
+    - docker:28-dind
   script:
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - echo "$IMAGES"
     - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${IMAGE//[\/:]/_}-scan-results.txt; done
-    - ls image-scan-results
   artifacts:
     paths:
       - image-scan-results   
@@ -88,6 +68,18 @@ trivy-image-scan:
     
     # Container image scan
     #- trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE
+
+trivy-code-scan:
+  stage: security_scan
+  image: aquasec/trivy:latest
+  script:
+    - ls
+    - mkdir code-scan-results
+    - CHANGED_DIRS=$(cat changed_dirs.env)
+    - for DIR in $CHANGED_DIRS; do trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
+  artifacts:
+    paths:
+      - code-scan-results   
 
 push-container:
   stage: push

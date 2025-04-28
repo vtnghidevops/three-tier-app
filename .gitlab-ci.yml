@@ -56,11 +56,11 @@ trivy-image-scan:
   services:
     - docker:28-dind
   script:
-    - apt-get update && apt-get install -y parallel
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - echo "$IMAGES"
-    - echo "$CHANGED_DIRS" | parallel --jobs 4 'trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/{} >> code-scan-results/{}-scan-results.txt'
+    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${IMAGE//[\/:]/_}-scan-results.txt &; done
+    - wait
   artifacts:
     paths:
       - image-scan-results   

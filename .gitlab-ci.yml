@@ -21,7 +21,7 @@ detect_changed_folders:
       CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
       
       # Extract the top-level directories that changed
-      CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u )
+    - echo $CHANGED_DIRS
     - echo "$CHANGED_DIRS" > changed_dirs.env
   artifacts:
     paths:

@@ -43,6 +43,8 @@ build-containers:
   services:
     - docker:dind
   script:
+    - echo "Waiting for Docker to be ready..."
+    - until docker info >/dev/null 2>&1; do sleep 2; done
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)
     - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR; done

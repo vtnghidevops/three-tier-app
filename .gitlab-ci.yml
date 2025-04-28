@@ -4,10 +4,21 @@ stages:
   - security_scan
   - push
 
+default:
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  before_script:
+    - docker info
+
 variables:
   TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
-  BE_IMAGE: $HARBOR_URL/$PROJECT_NAME/backend:$CI_COMMIT_SHORT_SHA
-  FE_IMAGE: $HARBOR_URL/$PROJECT_NAME/frontend:$CI_COMMIT_SHORT_SHA
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
 
 #default:
 #  before_script:

@@ -22,7 +22,19 @@ detect_changed_folders:
       
       # Extract top-level dirs
       CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u || true)
-      echo $CHANGED_DIRS
+      echo "Changed folders in Application-Code:"
+      if [ -z "$CHANGED_DIRS" ]; then
+        echo "No changes detected."
+        
+        if [ -n "$ACCESS_TOKEN" ]; then
+          curl --request POST --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" || echo "Warning: Failed to cancel pipeline"
+        else
+          echo "Warning: ACCESS_TOKEN not set. Cannot cancel pipeline."
+          exit 1
+        fi
+      else
+        echo "$CHANGED_DIRS"
+      fi
     - echo "$CHANGED_DIRS" > changed_dirs.env
   artifacts:
     paths:

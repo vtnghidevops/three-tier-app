@@ -40,6 +40,8 @@ detect_changed_folders:
 
 build-containers:
   stage: build
+  services:
+    - docker:dind
   script:
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)

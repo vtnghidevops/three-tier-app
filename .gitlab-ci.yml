@@ -38,6 +38,8 @@ detect_changed_folders:
 
 build-containers:
   stage: build
+  services:
+  - docker:dind
   tags: 
     - image-related
   script:
@@ -68,6 +70,8 @@ trivy-image-scan:
   stage: security_scan
   tags: 
     - image-related
+  services:
+  - docker:dind
   script:
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")

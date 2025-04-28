@@ -46,7 +46,7 @@ build-containers:
   script:
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)
-    - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR & done
+    - for DIR in $CHANGED_DIRS; do docker build -t $HARBOR_URL/$PROJECT_NAME/$DIR:$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR; done
 
 trivy-image-scan:
   stage: security_scan

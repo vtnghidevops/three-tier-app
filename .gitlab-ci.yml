@@ -79,7 +79,7 @@ trivy-image-scan:
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - echo "$IMAGES"
     - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${IMAGE//[\/:]/_}-scan-results.txt; done
-    - ls image-scan-re
+    - ls image-scan-results
   artifacts:
     paths:
       - image-scan-results   

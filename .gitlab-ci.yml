@@ -38,8 +38,6 @@ detect_changed_folders:
 
 build-containers:
   stage: build
-  services:
-  - docker:dind
   tags: 
     - image-related
   script:

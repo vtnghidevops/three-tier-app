@@ -71,6 +71,9 @@ trivy-image-scan:
   stage: security_scan
   tags: 
     - image-related
+  image: docker:27-dind
+  services:
+    - docker:27-dind
   script:
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")

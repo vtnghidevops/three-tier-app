@@ -18,7 +18,7 @@ detect_changed_folders:
   script:
     - |
       # Get the list of changed files in Application-Code directory
-      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
+      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/ || true)
       
       # Extract the top-level directories that changed
       CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u )

@@ -25,9 +25,10 @@ detect_changed_folders:
       echo "Changed folders in Application-Code:"
       if [ -z "$CHANGED_DIRS" ]; then
         echo "No changes detected."
-        
+
         if [ -n "$ACCESS_TOKEN" ]; then
-          curl --request POST --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" || echo "Warning: Failed to cancel pipeline"
+          curl --request POST --header "PRIVATE-TOKEN: $MY_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" || echo "Warning: Failed to cancel pipeline"
+          exit 1
         else
           echo "Warning: ACCESS_TOKEN not set. Cannot cancel pipeline."
           exit 1

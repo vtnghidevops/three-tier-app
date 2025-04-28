@@ -38,6 +38,8 @@ detect_changed_folders:
 
 build-containers:
   stage: build
+  tags: 
+    - image-related
   script:
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)
@@ -64,16 +66,9 @@ trivy-code-scan:
 
 trivy-image-scan:
   stage: security_scan
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
+  tags: 
+    - image-related
   script:
-    - echo "Waiting for Docker to be ready..."
-    - until docker info >/dev/null 2>&1; do sleep 1; done
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - for IMAGE in $IMAGES; do docker run --rm $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${IMAGE//[\/:]/_}-scan-results.txt; done

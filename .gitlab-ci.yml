@@ -83,8 +83,11 @@ trivy-code-scan:
 
 push-container:
   stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
   services:
-    - docker:dind
+    - docker:28-dind
   script:
     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")

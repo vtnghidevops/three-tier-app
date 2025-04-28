@@ -22,15 +22,6 @@ detect_changed_folders:
       
       # Extract the top-level directories that changed
       CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u )
-      
-      # Output the changed folders
-      echo "Changed folders in Application-Code:"
-      if [ -z "$CHANGED_DIRS" ]; then
-        echo "No changes detected in Application-Code directory"
-      else
-        echo "$CHANGED_DIRS"
-        # Save to a file for use in later stages
-      fi
     - echo "$CHANGED_DIRS" > changed_dirs.env
   artifacts:
     paths:

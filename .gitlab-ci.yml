@@ -43,7 +43,9 @@ build-containers:
   stage: build
   tags: 
     - image-related
-  image: docker:latest
+  image: docker:28-dind
+  services:
+    - docker:28-dind
   script:
     - cat changed_dirs.env
     - CHANGED_DIRS=$(cat changed_dirs.env)

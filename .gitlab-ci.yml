@@ -126,7 +126,7 @@ generate-sbom-files:
   stage: push
   tags: 
     - image-related
-  image: aquasec/trivy:latest
+  image: docker:28-dind
   services:
     - docker:28-dind
   script:
@@ -136,7 +136,9 @@ generate-sbom-files:
     - |
       for IMAGE in $IMAGES; do 
         SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); 
-        trivy image --format cyclonedx -o sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE & 
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $(pwd)/sbom-files:/sbom-files \
+        $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE & 
       done
     - wait
   artifacts:

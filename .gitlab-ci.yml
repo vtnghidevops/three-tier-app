@@ -63,8 +63,7 @@ trivy-image-security-scan:
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - echo "$IMAGES"
-    - SHORT_IMAGE_NAME=$(echo "$IMAGES" | cut -d'/' -f3 | cut -d':' -f1)
-    - for IMAGE in $IMAGES; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${SHORT_IMAGE_NAME}-scan-results.txt & done
+    - for IMAGE in $IMAGES; do SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${SHORT_IMAGE_NAME}-scan-results.txt & done
     - wait
   artifacts:
     paths:

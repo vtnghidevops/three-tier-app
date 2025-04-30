@@ -151,7 +151,8 @@ upload_to_minio:
   needs: ["generate-sbom-files"]
   script:
     - TIMESTAMP=$(date +%Y%m%d)
-    - export ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - mkdir $ARTIFACT_DIR
     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"

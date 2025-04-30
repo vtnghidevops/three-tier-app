@@ -7,9 +7,6 @@ stages:
 
 variables:
   TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_DRIVER: overlay2
 
 #default:
 #  before_script:

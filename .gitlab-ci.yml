@@ -150,6 +150,7 @@ upload_to_minio:
   stage: push
   needs: ["generate-sbom-files"]
   script:
+    - ls
     - TIMESTAMP=$(date +%Y%m%d)
     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
     - mkdir $ARTIFACT_DIR

@@ -109,18 +109,6 @@ Precheck-manual-gate:
   when: manual
   allow_failure: false
 
-push-images:
-  stage: push
-  tags: 
-    - image-related
-  image: docker:28-dind
-  services:
-    - docker:28-dind
-  script:
-    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-    - for IMAGE in $IMAGES; do docker push $IMAGE; done
-
 generate-sbom-files:
   stage: push
   tags: 
@@ -143,6 +131,19 @@ generate-sbom-files:
   artifacts:
     paths:
       - sbom-files  
+
+push-images:
+  stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  needs: ["generate-sbom-files"]
+  script:
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
+    - for IMAGE in $IMAGES; do docker push $IMAGE; done
 
 upload_to_minio:
   image: minio/mc

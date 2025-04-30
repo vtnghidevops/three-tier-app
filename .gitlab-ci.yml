@@ -148,7 +148,7 @@ push-images:
 upload_to_minio:
   image: minio/mc
   stage: push
-  needs: ["generate-sbom-files"]
+  needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan"]
   script:
     - ls
     - TIMESTAMP=$(date +%Y%m%d)

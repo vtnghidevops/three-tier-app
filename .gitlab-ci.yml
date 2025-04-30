@@ -2,6 +2,7 @@ stages:
   - detect_changes
   - build
   - scan
+  - precheck
   - push
 
 variables:
@@ -63,16 +64,15 @@ trivy-image-security-scan:
     - mkdir image-scan-results
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - echo "$IMAGES"
-    - for IMAGE in $IMAGES; do SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${SHORT_IMAGE_NAME}-scan-results.txt & done
+    - |
+      for IMAGE in $IMAGES; do 
+        SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); 
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${SHORT_IMAGE_NAME}-scan-results.txt & 
+      done
     - wait
   artifacts:
     paths:
       - image-scan-results   
-    # Filesystem scan (code scan)
-    #- trivy fs --exit-code 0 --severity HIGH,CRITICAL --no-progress ./Application-Code
-    
-    # Container image scan
-    #- trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $DOCKER_IMAGE
 
 trivy-code-security-scan:
   stage: scan
@@ -104,7 +104,14 @@ sonarqube-code-quality-scan:
     - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
   allow_failure: true
 
-The-stage-of-no-return:
+Precheck-manual-gate:
+  stage: precheck
+  script:
+    - echo "Manual approval required before pushing images and artifacts."
+  when: manual
+  allow_failure: false
+
+push-images:
   stage: push
   tags: 
     - image-related
@@ -115,6 +122,35 @@ The-stage-of-no-return:
     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
     - for IMAGE in $IMAGES; do docker push $IMAGE; done
-  when: manual
 
+generate-sbom-files:
+  stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  script:
+    - mkdir sbom-files
+    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
+    - echo "$IMAGES"
+    - |
+      for IMAGE in $IMAGES; do 
+        SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); 
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE & 
+      done
+    - wait
+  artifacts:
+    paths:
+      - sbom-files  
 
+upload_to_minio:
+  image: minio/mc
+  stage: push
+  needs: ["generate-sbom-files"]
+  script:
+    - TIMESTAMP=$(date +%Y%m%d)
+    - export ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+    - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
+    - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"

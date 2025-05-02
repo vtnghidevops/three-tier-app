@@ -1,5 +1,6 @@
 stages:
   - detect_changes
+  - prepare
   - build
   - scan
   - precheck

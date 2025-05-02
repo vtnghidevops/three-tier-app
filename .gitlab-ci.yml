@@ -98,8 +98,7 @@ trivy-image-security-scan:
       for DIR in $DIRS; do
       IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
       docker pull $IMAGE
-      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-      $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
+      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
       done
     - wait
   artifacts:
@@ -161,9 +160,7 @@ generate-sbom-files:
       for DIR in $DIRS; do
         IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
         docker pull $IMAGE
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $(pwd)/sbom-files:/sbom-files \
-        $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
       done
     - wait
   artifacts:

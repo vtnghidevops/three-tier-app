@@ -45,8 +45,6 @@ generate-build-stage:
   image: docker:28-dind
   services:
     - docker:28-dind
-  tags: 
-    - image-related
   script:
     - echo "Generating child pipeline"
     - |
@@ -56,6 +54,8 @@ generate-build-stage:
       Build ${DIR} image:
         stage: build
         image: docker:28-dind
+        tags: 
+          - image-related
         services:
           - docker:28-dind
         script:
@@ -96,7 +96,7 @@ trivy-image-security-scan:
     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
     - |
       for DIR in $DIRS; do
-      IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
+      IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
       docker pull $IMAGE
       docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
       $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
@@ -159,7 +159,7 @@ generate-sbom-files:
     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
     - |
       for DIR in $DIRS; do
-        IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
+        IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
         docker pull $IMAGE
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
         -v $(pwd)/sbom-files:/sbom-files \

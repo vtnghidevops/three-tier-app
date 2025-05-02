@@ -45,6 +45,8 @@ generate-build-stage:
   image: docker:28-dind
   services:
     - docker:28-dind
+  tags: 
+    - image-related
   script:
     - echo "Generating child pipeline"
     - |
@@ -73,6 +75,7 @@ generate-build-stage:
 trigger-docker-build:
   stage: build
   trigger:
+    strategy: depend
     include:
       - artifact: docker-build-pipeline.yml
         job: generate-build-stage
@@ -89,12 +92,14 @@ trivy-image-security-scan:
     - docker:28-dind
   script:
     - mkdir image-scan-results
-    - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-    - echo "$IMAGES"
+    - DIRS=$(cat changed_dirs.env)
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
     - |
-      for IMAGE in $IMAGES; do 
-        SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); 
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed $IMAGE >> image-scan-results/${SHORT_IMAGE_NAME}-scan-results.txt & 
+      for DIR in $DIRS; do
+      IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
+      docker pull $IMAGE
+      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+      $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
       done
     - wait
   artifacts:
@@ -108,7 +113,10 @@ trivy-code-security-scan:
     - ls
     - mkdir code-scan-results
     - CHANGED_DIRS=$(cat changed_dirs.env)
-    - for DIR in $CHANGED_DIRS; do trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
+    - |
+      for DIR in $CHANGED_DIRS; do 
+      trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed \
+      ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
   artifacts:
     paths:
       - code-scan-results   
@@ -138,28 +146,42 @@ Precheck-manual-gate:
   when: manual
   allow_failure: false
 
-# generate-sbom-files:
-#   stage: push
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   script:
-#     - mkdir sbom-files
-#     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-#     - echo "$IMAGES"
-#     - |
-#       for IMAGE in $IMAGES; do 
-#         SHORT_IMAGE_NAME=$(echo "$IMAGE" | cut -d'/' -f3 | cut -d':' -f1); 
-#         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-#         -v $(pwd)/sbom-files:/sbom-files \
-#         $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE & 
-#       done
-#     - wait
-#   artifacts:
-#     paths:
-#       - sbom-files  
+generate-sbom-files:
+  stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  script:
+    - mkdir sbom-files
+    - DIRS=$(cat changed_dirs.env)
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+    - |
+      for DIR in $DIRS; do
+        IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
+        docker pull $IMAGE
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $(pwd)/sbom-files:/sbom-files \
+        $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
+      done
+    - wait
+  artifacts:
+    paths:
+      - sbom-files  
+
+upload_to_minio:
+  image: minio/mc
+  stage: push
+  needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
+  script:
+    - ls
+    - TIMESTAMP=$(date +%Y%m%d)
+    - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - mkdir $ARTIFACT_DIR
+    - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+    - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
+    - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
 # push-images:
 #   stage: push
@@ -174,15 +196,3 @@ Precheck-manual-gate:
 #     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
 #     - for IMAGE in $IMAGES; do docker push $IMAGE; done
 
-#  upload_to_minio:
-#   image: minio/mc
-#   stage: push
-#   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
-#   script:
-#     - ls
-#     - TIMESTAMP=$(date +%Y%m%d)
-#     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
-#     - mkdir $ARTIFACT_DIR
-#     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-#     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
-#     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"

@@ -50,7 +50,7 @@ generate-build-stage:
     - |
       DIRS=$(cat changed_dirs.env)
       for DIR in $DIRS; do
-        cat <<EOF >> child-pipeline.yml
+        cat <<EOF >> docker-build-pipeline.yml
       Build ${DIR} image:
         stage: build-and-push
         tags:

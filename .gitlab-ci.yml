@@ -74,7 +74,9 @@ generate-build-stage:
 trigger-docker-build:
   stage: build
   trigger:
-    include: docker-build-pipeline.yml
+    include:
+      - artifact: docker-build-pipeline.yml
+        job: generate-build-stage
     strategy: depend
   needs:
     - job: generate-build-stage

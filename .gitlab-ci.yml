@@ -1,7 +1,7 @@
 stages:
   - detect-changes
   - prepare-docker-build
-  - build
+  - build-and-push
   - scan
   - precheck
   - push

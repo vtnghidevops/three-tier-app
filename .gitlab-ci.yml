@@ -59,6 +59,7 @@ generate-build-stage:
         services:
           - docker:28-dind
         script:
+          - ls -l ./Application-Code
           - echo "Building ${DIR} image"
           - IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA ./Application-Code/$DIR
           - docker build -t \$IMAGE ./Application-Code/${DIR}

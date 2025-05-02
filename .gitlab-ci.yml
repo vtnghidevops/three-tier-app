@@ -77,7 +77,7 @@ trigger-docker-build:
     include: docker-build-pipeline.yml
     strategy: depend
   needs:
-    - job: generate-child-pipeline
+    - job: generate-build-stage
       artifacts: true
 
 # build-containers:

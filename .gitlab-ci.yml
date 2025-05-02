@@ -1,6 +1,6 @@
 stages:
-  - detect_changes
-  - prepare
+  - detect-changes
+  - prepare-docker-build
   - build
   - scan
   - precheck
@@ -13,8 +13,8 @@ variables:
 #  before_script:
 #  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
 
-detect_changed_folders:
-  stage: detect_changes
+detect-changed-folders:
+  stage: detect-changes
   script: 
     - |
       # Get the list of changed files in Application-Code directory
@@ -40,8 +40,8 @@ detect_changed_folders:
     paths:
       - changed_dirs.env
 
-generate-child-pipeline:
-  stage: prepare
+generate-build-stage:
+  stage: prepare-docker-build
   image: docker:28-dind
   services:
     - docker:28-dind
@@ -69,7 +69,16 @@ generate-child-pipeline:
       done
   artifacts:
     paths:
-      - child-pipeline.yml
+      - docker-build-pipeline.yml
+
+trigger-docker-build:
+  stage: build
+  trigger:
+    include: docker-build-pipeline.yml
+    strategy: depend
+  needs:
+    - job: generate-child-pipeline
+      artifacts: true
 
 # build-containers:
 #   stage: build

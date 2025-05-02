@@ -1,7 +1,7 @@
 stages:
   - detect-changes
   - prepare-docker-build
-  - build-and-push
+  - build
   - scan
   - precheck
   - push
@@ -52,7 +52,7 @@ generate-build-stage:
       for DIR in $DIRS; do
         cat <<EOF >> docker-build-pipeline.yml
       Build ${DIR} image:
-        stage: build-and-push
+        stage: build
         tags:
           - image-related
         image: docker:28-dind

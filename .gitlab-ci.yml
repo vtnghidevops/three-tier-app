@@ -141,39 +141,39 @@ Precheck-manual-gate:
   when: manual
   allow_failure: false
 
-generate-sbom-files:
-  stage: push
-  tags: 
-    - image-related
-  image: docker:28-dind
-  services:
-    - docker:28-dind
-  script:
-    - mkdir sbom-files
-    - DIRS=$(cat changed_dirs.env)
-    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-    - |
-      for DIR in $DIRS; do
-        IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-        docker pull $IMAGE
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
-      done
-    - wait
-  artifacts:
-    paths:
-      - sbom-files  
+# generate-sbom-files:
+#   stage: push
+#   tags: 
+#     - image-related
+#   image: docker:28-dind
+#   services:
+#     - docker:28-dind
+#   script:
+#     - mkdir sbom-files
+#     - DIRS=$(cat changed_dirs.env)
+#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+#     - |
+#       for DIR in $DIRS; do
+#         IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
+#         docker pull $IMAGE
+#         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
+#       done
+#     - wait
+#   artifacts:
+#     paths:
+#       - sbom-files  
 
-upload_to_minio:
-  image: minio/mc
-  stage: push
-  needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
-  script:
-    - TIMESTAMP=$(date +%Y%m%d)
-    - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
-    - mkdir $ARTIFACT_DIR
-    - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-    - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
-    - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
+# upload_to_minio:
+#   image: minio/mc
+#   stage: push
+#   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
+#   script:
+#     - TIMESTAMP=$(date +%Y%m%d)
+#     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+#     - mkdir $ARTIFACT_DIR
+#     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+#     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
+#     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
 push-images:
   stage: push

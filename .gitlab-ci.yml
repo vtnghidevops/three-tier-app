@@ -9,10 +9,6 @@ stages:
 variables:
   TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
 
-#default:
-#  before_script:
-#  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-
 detect-changed-folders:
   stage: detect-changes
   script: 
@@ -98,7 +94,7 @@ trivy-image-security-scan:
       for DIR in $DIRS; do
       IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
       docker pull $IMAGE
-      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
+      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $IMAGE --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
       done
     - wait
   artifacts:
@@ -172,7 +168,6 @@ upload_to_minio:
   stage: push
   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
   script:
-    - ls
     - TIMESTAMP=$(date +%Y%m%d)
     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
     - mkdir $ARTIFACT_DIR
@@ -180,16 +175,30 @@ upload_to_minio:
     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
-# push-images:
-#   stage: push
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   # needs: ["generate-sbom-files"]
-#   script:
-#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-#     - IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ":${CI_COMMIT_SHORT_SHA}$")
-#     - for IMAGE in $IMAGES; do docker push $IMAGE; done
+push-images:
+  stage: push
+  before_script:
+    # Install git and other needed tools
+    - apk add --no-cache git openssh-client
+    # Configure git user
+    - git config --global user.email "${GITHUB_EMAIL}"
+    - git config --global user.name "philogn"
+  script:
+    # Install yq
+    - curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
+    - chmod +x /usr/bin/yq
+    - yq --version
+    # Clone Helm chart repo
+    - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
+    - cd Three-tier-app-HelmChart
+    # Update values.yaml
+    - DIRS=$(cat changed_dirs.env)
+    - |
+      for DIR in $DIRS; do 
+        yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./Three-tier-app-HelmChart/umbrella-chart/values.yaml; 
+      done
+    # Commit and push changes
+    - git add .
+    - git commit -m "Update images tag:${CI_COMMIT_SHORT_SHA}"
+    - git push https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git main
 

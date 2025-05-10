@@ -20,13 +20,15 @@ spec:
     metadata:
       labels:
         role: frontend
-    spec: 
+    spec:
+      imagePullSecrets:
+          - name: harbor-secret
       containers:
       - name: frontend
-        image: logng404/devops-frontend:latest
+        image: redacted/three_tier_app/frontend:8b629682
         imagePullPolicy: Always
         env:
           - name: REACT_APP_BACKEND_URL
-            value: "https://deploy.io.vn/api/tasks"
+            value: "https://redacted/api/tasks"
         ports:
         - containerPort: 3000

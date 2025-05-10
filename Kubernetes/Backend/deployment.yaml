@@ -21,9 +21,11 @@ spec:
       labels:
         role: api
     spec:
+      imagePullSecrets:
+          - name: harbor-secret
       containers:
       - name: api
-        image: logng404/devops-backend:latest
+        image: redacted/three_tier_app/backend:8b629682
         imagePullPolicy: Always
         env:
           - name: MONGO_CONN_STR

@@ -175,12 +175,13 @@ Precheck-manual-gate:
 #     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
 #     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
-push-images:
+update-images-tag:
   stage: push
   before_script:
     # Configure git user
     - git config --global user.email "${GITHUB_EMAIL}"
     - git config --global user.name "philogn"
+    - apk add --no-cache curl
   script:
     # Install yq
     - curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq

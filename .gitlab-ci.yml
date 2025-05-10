@@ -177,16 +177,18 @@ Precheck-manual-gate:
 
 update-images-tag:
   stage: push
+  needs: ["detect-changed-folders"]
   before_script:
     # Configure git user
     - git config --global user.email "${GITHUB_EMAIL}"
     - git config --global user.name "philogn"
     - apk add --no-cache curl
+    - apk add --no-cache yq
   script:
-    # Install yq
-    - curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
-    - chmod +x /usr/bin/yq
-    - yq --version
+    # # Install yq
+    # - curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
+    # - chmod +x /usr/bin/yq
+    # - yq --version
     # Clone Helm chart repo
     - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
     - cd Three-tier-app-HelmChart

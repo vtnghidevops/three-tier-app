@@ -79,60 +79,60 @@ trigger-docker-build:
     - job: generate-build-stage
       artifacts: true
 
-# trivy-image-security-scan:
-#   stage: scan
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   script:
-#     - mkdir image-scan-results
-#     - DIRS=$(cat changed_dirs.env)
-#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-#     - |
-#       for DIR in $DIRS; do
-#       IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-#       docker pull $IMAGE
-#       docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $IMAGE --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
-#       done
-#     - wait
-#   artifacts:
-#     paths:
-#       - image-scan-results   
+trivy-image-security-scan:
+  stage: scan
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  script:
+    - mkdir image-scan-results
+    - DIRS=$(cat changed_dirs.env)
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+    - |
+      for DIR in $DIRS; do
+      IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
+      docker pull $IMAGE
+      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $IMAGE --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
+      done
+    - wait
+  artifacts:
+    paths:
+      - image-scan-results   
 
-# trivy-code-security-scan:
-#   stage: scan
-#   image: aquasec/trivy:latest
-#   script:
-#     - ls
-#     - mkdir code-scan-results
-#     - CHANGED_DIRS=$(cat changed_dirs.env)
-#     - |
-#       for DIR in $CHANGED_DIRS; do 
-#       trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed \
-#       ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
-#   artifacts:
-#     paths:
-#       - code-scan-results   
+trivy-code-security-scan:
+  stage: scan
+  image: aquasec/trivy:latest
+  script:
+    - ls
+    - mkdir code-scan-results
+    - CHANGED_DIRS=$(cat changed_dirs.env)
+    - |
+      for DIR in $CHANGED_DIRS; do 
+      trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed \
+      ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
+  artifacts:
+    paths:
+      - code-scan-results   
 
-# sonarqube-code-quality-scan:
-#   stage: scan
-#   image: 
-#       name: sonarsource/sonar-scanner-cli:11
-#       entrypoint: [""]
-#   variables:
-#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-#     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-#   cache:
-#     policy: pull-push
-#     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-#     paths:
-#       - "${SONAR_USER_HOME}/cache"
-#       - sonar-scanner/
-#   script: 
-#     - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
-#   allow_failure: true
+sonarqube-code-quality-scan:
+  stage: scan
+  image: 
+      name: sonarsource/sonar-scanner-cli:11
+      entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+  script: 
+    - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
+  allow_failure: true
 
 Precheck-manual-gate:
   stage: precheck
@@ -141,39 +141,39 @@ Precheck-manual-gate:
   when: manual
   allow_failure: false
 
-# generate-sbom-files:
-#   stage: push
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   script:
-#     - mkdir sbom-files
-#     - DIRS=$(cat changed_dirs.env)
-#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-#     - |
-#       for DIR in $DIRS; do
-#         IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-#         docker pull $IMAGE
-#         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
-#       done
-#     - wait
-#   artifacts:
-#     paths:
-#       - sbom-files  
+generate-sbom-files:
+  stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  script:
+    - mkdir sbom-files
+    - DIRS=$(cat changed_dirs.env)
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+    - |
+      for DIR in $DIRS; do
+        IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
+        docker pull $IMAGE
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
+      done
+    - wait
+  artifacts:
+    paths:
+      - sbom-files  
 
-# upload_to_minio:
-#   image: minio/mc
-#   stage: push
-#   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
-#   script:
-#     - TIMESTAMP=$(date +%Y%m%d)
-#     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
-#     - mkdir $ARTIFACT_DIR
-#     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-#     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
-#     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
+upload_to_minio:
+  image: minio/mc
+  stage: push
+  needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
+  script:
+    - TIMESTAMP=$(date +%Y%m%d)
+    - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - mkdir $ARTIFACT_DIR
+    - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+    - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
+    - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
 update-images-tag:
   stage: push
@@ -185,10 +185,6 @@ update-images-tag:
     - apk add --no-cache curl
     - apk add --no-cache yq
   script:
-    # # Install yq
-    # - curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
-    # - chmod +x /usr/bin/yq
-    # - yq --version
     # Clone Helm chart repo
     - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
     - DIRS=$(cat changed_dirs.env)

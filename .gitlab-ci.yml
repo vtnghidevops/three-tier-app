@@ -177,7 +177,7 @@ Precheck-manual-gate:
 
 update-images-tag:
   stage: push
-  needs: ["detect-changed-folders"]
+  needs: ["detect-changed-folders", "Precheck-manual-gate"]
   before_script:
     # Configure git user
     - git config --global user.email "${GITHUB_EMAIL}"
@@ -196,7 +196,7 @@ update-images-tag:
     # Update values.yaml
     - |
       for DIR in $DIRS; do 
-        yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./Three-tier-app-HelmChart/umbrella-chart/values.yaml; 
+        yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml; 
       done
     # Commit and push changes
     - git add .

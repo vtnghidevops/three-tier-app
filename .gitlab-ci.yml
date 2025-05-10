@@ -191,9 +191,9 @@ update-images-tag:
     # - yq --version
     # Clone Helm chart repo
     - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
+    - DIRS=$(cat changed_dirs.env)
     - cd Three-tier-app-HelmChart
     # Update values.yaml
-    - DIRS=$(cat changed_dirs.env)
     - |
       for DIR in $DIRS; do 
         yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./Three-tier-app-HelmChart/umbrella-chart/values.yaml; 

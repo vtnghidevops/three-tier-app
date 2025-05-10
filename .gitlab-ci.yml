@@ -178,8 +178,6 @@ upload_to_minio:
 push-images:
   stage: push
   before_script:
-    # Install git and other needed tools
-    - apk add --no-cache git openssh-client
     # Configure git user
     - git config --global user.email "${GITHUB_EMAIL}"
     - git config --global user.name "philogn"

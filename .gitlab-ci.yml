@@ -12,6 +12,7 @@ variables:
 detect-changed-folders:
   stage: detect-changes
   script: 
+    - apk add --no-cache curl
     - |
       # Get the list of changed files in Application-Code directory
       CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
@@ -116,86 +117,86 @@ trivy-code-security-scan:
     paths:
       - code-scan-results   
 
-# sonarqube-code-quality-scan:
-#   stage: scan
-#   image: 
-#       name: sonarsource/sonar-scanner-cli:11
-#       entrypoint: [""]
-#   variables:
-#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-#     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-#   cache:
-#     policy: pull-push
-#     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-#     paths:
-#       - "${SONAR_USER_HOME}/cache"
-#       - sonar-scanner/
-#   script: 
-#     - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
-#   allow_failure: true
+sonarqube-code-quality-scan:
+  stage: scan
+  image: 
+      name: sonarsource/sonar-scanner-cli:11
+      entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+  script: 
+    - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
+  allow_failure: true
 
-# Precheck-manual-gate:
-#   stage: precheck
-#   script:
-#     - echo "Manual approval required before pushing images and artifacts."
-#   when: manual
-#   allow_failure: false
+Precheck-manual-gate:
+  stage: precheck
+  script:
+    - echo "Manual approval required before pushing images and artifacts."
+  when: manual
+  allow_failure: false
 
-# generate-sbom-files:
-#   stage: push
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   script:
-#     - mkdir sbom-files
-#     - DIRS=$(cat changed_dirs.env)
-#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-#     - |
-#       for DIR in $DIRS; do
-#         IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-#         docker pull $IMAGE
-#         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
-#       done
-#     - wait
-#   artifacts:
-#     paths:
-#       - sbom-files  
+generate-sbom-files:
+  stage: push
+  tags: 
+    - image-related
+  image: docker:28-dind
+  services:
+    - docker:28-dind
+  script:
+    - mkdir sbom-files
+    - DIRS=$(cat changed_dirs.env)
+    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
+    - |
+      for DIR in $DIRS; do
+        IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
+        docker pull $IMAGE
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
+      done
+    - wait
+  artifacts:
+    paths:
+      - sbom-files  
 
-# upload_to_minio:
-#   image: minio/mc
-#   stage: push
-#   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
-#   script:
-#     - TIMESTAMP=$(date +%Y%m%d)
-#     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
-#     - mkdir $ARTIFACT_DIR
-#     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-#     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
-#     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
+upload_to_minio:
+  image: minio/mc
+  stage: push
+  needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
+  script:
+    - TIMESTAMP=$(date +%Y%m%d)
+    - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
+    - mkdir $ARTIFACT_DIR
+    - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+    - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
+    - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
-# update-images-tag:
-#   stage: push
-#   needs: ["detect-changed-folders", "Precheck-manual-gate"]
-#   before_script:
-#     # Configure git user
-#     - git config --global user.email "${GITHUB_EMAIL}"
-#     - git config --global user.name "philogn"
-#     - apk add --no-cache curl
-#     - apk add --no-cache yq
-#   script:
-#     # Clone Helm chart repo
-#     - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
-#     - DIRS=$(cat changed_dirs.env)
-#     - cd Three-tier-app-HelmChart
-#     # Update values.yaml
-#     - |
-#       for DIR in $DIRS; do 
-#         yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml; 
-#       done
-#     # Commit and push changes
-#     - git add .
-#     - git commit -m "Update images tag:${CI_COMMIT_SHORT_SHA}"
-#     - git push https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git main
+update-images-tag:
+  stage: push
+  needs: ["detect-changed-folders", "Precheck-manual-gate"]
+  before_script:
+    # Configure git user
+    - git config --global user.email "${GITHUB_EMAIL}"
+    - git config --global user.name "philogn"
+    - apk add --no-cache curl
+    - apk add --no-cache yq
+  script:
+    # Clone Helm chart repo
+    - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
+    - DIRS=$(cat changed_dirs.env)
+    - cd Three-tier-app-HelmChart
+    # Update values.yaml
+    - |
+      for DIR in $DIRS; do 
+        yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml; 
+      done
+    # Commit and push changes
+    - git add .
+    - git commit -m "Update images tag:${CI_COMMIT_SHORT_SHA}"
+    - git push https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git main
 

@@ -176,7 +176,8 @@ upload_to_minio:
     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
 
-update-images-tag:
+# Update image tag of Helm chart
+deploy:
   stage: push
   needs: ["detect-changed-folders", "Precheck-manual-gate"]
   before_script:

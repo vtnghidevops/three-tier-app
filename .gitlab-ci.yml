@@ -173,7 +173,7 @@ detect-changed-folders:
   #when: manual
 
 
-# Stage 2: Prepare docker build
+  # Stage 2: Prepare docker build
 generate-build-stage:
   stage: prepare-docker-build
   extends:
@@ -620,6 +620,8 @@ generate-sbom-files:
   when: manual
   tags:
   - devops-k8s-runner
+  only:
+  - tags
 
 upload_to_minio:
   image: ${MINIO_IMAGE}
@@ -663,6 +665,8 @@ upload_to_minio:
   tags:
   - devops-k8s-runner
   when: manual
+  only:
+  - tags
 
 update-images-tag:
   stage: update-helm-chart
@@ -699,3 +703,5 @@ update-images-tag:
   tags:
   - devops-k8s-runner
   when: manual
+  only:
+  - tags

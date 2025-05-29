@@ -1,203 +1,700 @@
 stages:
-  - detect-changes
-  - prepare-docker-build
-  - build
-  - scan
-  - precheck
-  - push
+- detect-changes
+- prepare-docker-build
+- build-docker-image
+- scan
+- precheck
+- push-artifacts
+- update-helm-chart
 
+# Variables
 variables:
-  TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest"  # Use the official Trivy image
+  # Application Structure
+  BEESHOES_BACKEND_DIR: "beeshoes-backend"
+  BEESHOES_FRONTEND_DIR: "beeshoes-frontend"
 
+  # Docker & Container Registry
+  DOCKER_IMAGE: "docker:28-dind"
+
+  # Security Scanning Tools
+  TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:latest" # Use the official Trivy image
+  GITLEAKS_IMAGE: "zricethezav/gitleaks:latest"
+  SNYK_IMAGE: "snyk/snyk:node"
+  SEVERITY_LEVELS: "HIGH,CRITICAL"
+  SCAN_OPTIONS: "--no-progress --ignore-unfixed"
+
+  # Code Quality
+  SONAR_IMAGE: "maven:3-eclipse-temurin-17"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+
+  # Performance Testing
+  K6_IMAGE: "grafana/k6:0.46.0"
+
+  # Storage & Artifacts
+  MINIO_IMAGE: "minio/mc:latest"
+  ARTIFACTS_RETENTION: 1 day
+
+  # Git & Deployment
+  GITHUB_USERNAME: "philogn"
+  HELM_REPO: "Three-tier-app-HelmChart"
+  HELM_VALUES_PATH: "./umbrella-chart/values.yaml"
+
+  # Report path
+  GITLEAKS_FOLDER: "~/security-scan-results/secrets"
+  GITLEAKS_REPORT: "${GITLEAKS_FOLDER}/gitleaks_scan_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report"
+  TRIVY_IMG_FOLDER: "~/security-scan-results/trivy-image"
+  TRIVY_IMG_REPORT: "${TRIVY_IMG_FOLDER}/trivy_img_scan_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report"
+  TRIVYFS_FOLDER: "~/security-scan-results/trivy-fs"
+  TRIVYFS_REPORT: "${TRIVYFS_FOLDER}/trivyfs_scan_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report"
+  SNYK_FOLDER: "~/security-scan-results/snyk"
+  SNYK_REPORT: "${SNYK_FOLDER}/snyk_scan_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report"
+  SONAR_FOLDER: "~/security-scan-results/sonar"
+  SONAR_REPORT: "${SONAR_FOLDER}/sonar_scan_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report"
+
+# Template
+.docker-job-template:
+  image: ${DOCKER_IMAGE}
+  services:
+  - ${DOCKER_IMAGE}
+  tags:
+  - devops-k8s-runner
+  before_script:
+  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
+
+# Template for loading changed directories
+.load-changed-dirs: |
+  echo "--- Executing .load-changed-dirs script ---"
+  if [ ! -f changed_dirs.txt ]; then
+    echo "Error: changed_dirs.txt not found. This should have been created by detect-changed-folders."
+    exit 1
+  fi
+  DIRS=$(cat changed_dirs.txt)
+  if [ -z "$DIRS" ]; then
+    echo "No directories to process (DIRS variable is empty after reading changed_dirs.txt)."
+    # Subsequent scripts in the job should handle empty DIRS
+  else
+    echo "Processing directories: $DIRS"
+  fi
+  echo "-----------------------------------------"
+
+.default-develop-rules:
+  rules:
+  # Run job if it is a tag pipeline AND the tag name ends with -dev (e.g., v1.0.0-dev)
+  - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /-dev$/'
+    when: always
+  # Do not run the job otherwise
+  - when: never
+
+.rules-for-precheck-manual-gate:
+  rules:
+  - if: $PRECHECK_APPROVED == "true"
+    when: always
+  - when: never
+
+.rules-for-sonar-be:
+  rules:
+  - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /-dev$/'
+    changes:
+    - ${BEESHOES_BACKEND_DIR}/**/*
+    when: always
+  - when: never
+
+# Stage 1: Detect changes
 detect-changed-folders:
   stage: detect-changes
-  script: 
-    - apk add --no-cache curl
-    - |
-      # Get the list of changed files in Application-Code directory
-      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- Application-Code/)
-      
-      # Extract top-level dirs
-      CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep "^Application-Code/" | awk -F/ '{print $2}' | sort -u || true)
-      echo "Changed folders in Application-Code:"
-      if [ -z "$CHANGED_DIRS" ]; then
-        echo "No changes detected."
+  extends: .default-develop-rules
+  variables:
+    GIT_STRATEGY: clone # Crucial for having full repo access
+    GIT_DEPTH: 0 # Crucial for having full commit history
+  script:
+  - apk add --no-cache curl
+  - |
+    TARGET_COMMIT_SHA="$CI_COMMIT_SHA"
+    BASE_SHA=""
 
-        if [ -n "$ACCESS_TOKEN" ]; then
-          curl --request POST --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" || echo "Warning: Failed to cancel pipeline"
-        else
-          echo "Warning: ACCESS_TOKEN not set. Cannot cancel pipeline."
-          exit 1
-        fi
+    # Determine the base commit for comparison
+    if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+      git checkout "$TARGET_COMMIT_SHA"
+      
+      # Check if the current commit (TARGET_COMMIT_SHA) has a parent
+      if git rev-parse --verify HEAD^ > /dev/null 2>&1; then
+        BASE_SHA="HEAD^" # Parent of the tagged commit
       else
-        echo "$CHANGED_DIRS"
+        echo "$TARGET_COMMIT_SHA is the initial commit (no parent). Comparing with empty tree."
+        BASE_SHA="4b825dc642cb6eb9a060e54bf8d69288fbee4904" # Empty tree SHA-1 hash
       fi
-    - echo "$CHANGED_DIRS" > changed_dirs.env
+    else
+      # If CI_COMMIT_BEFORE_SHA is valid, use it as the base.
+      echo "Using CI_COMMIT_BEFORE_SHA ($CI_COMMIT_BEFORE_SHA) as the base for comparison."
+      BASE_SHA="$CI_COMMIT_BEFORE_SHA"
+    fi
+
+    echo "Performing diff between BASE: $(git rev-parse --short $BASE_SHA 2>/dev/null || echo $BASE_SHA) and TARGET: $(git rev-parse --short $TARGET_COMMIT_SHA)"
+    echo "Listing files in current directory before diff:"
+    ls -ltra
+
+    # Get the list of changed files between BASE_SHA and TARGET_COMMIT_SHA
+    # Filter for changes only within beeshoes-backend/ or beeshoes-frontend/
+    CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$TARGET_COMMIT_SHA" -- beeshoes-backend/ beeshoes-frontend/ || true)
+
+    echo "Changed files (raw output from diff):"
+    echo "$CHANGED_FILES"
+
+    # Extract unique top-level directory names (beeshoes-backend or beeshoes-frontend)
+    CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep -E "^(beeshoes-backend|beeshoes-frontend)/" | awk -F/ '{print $1}' | sort -u || true)
+    echo "Changed top-level folders (beeshoes-backend or beeshoes-frontend):"
+    echo "$CHANGED_DIRS"
+
+    if [ -z "$CHANGED_DIRS" ]; then
+      echo "No relevant changes detected in beeshoes-backend/ or beeshoes-frontend/."
+      echo "" > changed_dirs.txt # Create empty file
+      echo "Created empty changed_dirs.txt"
+      if [ -n "$ACCESS_TOKEN" ]; then
+        echo "Attempting to cancel pipeline $CI_PIPELINE_ID in project $CI_PROJECT_ID because no relevant changes were found..."
+        curl --request POST --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" || echo "Warning: Failed to cancel pipeline"
+      else
+        echo "Warning: ACCESS_TOKEN not set. Cannot cancel pipeline."
+      fi
+    else
+      echo "Detected changes in the following directories: $CHANGED_DIRS"
+      echo "$CHANGED_DIRS" > changed_dirs.txt
+    fi
+    echo "--- Content of changed_dirs.txt --- "
+    cat changed_dirs.txt
   artifacts:
     paths:
-      - changed_dirs.env
+    - changed_dirs.txt
+    expire_in: 1 day
+  tags:
+  - devops-shell-runner
+  #when: manual
 
+
+# Stage 2: Prepare docker build
 generate-build-stage:
   stage: prepare-docker-build
-  image: docker:28-dind
-  services:
-    - docker:28-dind
+  extends:
+  - .docker-job-template
+  - .default-develop-rules
+  variables:
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: "true"
+    GIT_CLEAN_FLAGS: -ffdx
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
   script:
-    - echo "Generating child pipeline"
-    - |
-      DIRS=$(cat changed_dirs.env)
-      for DIR in $DIRS; do
-        cat <<EOF >> docker-build-pipeline.yml
-      Build ${DIR} image:
-        stage: build
-        image: docker:28-dind
-        tags: 
-          - image-related
-        services:
-          - docker:28-dind
-        script:
-          - ls -l ./Application-Code/
-          - echo "Building ${DIR} image"
-          - IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
-          - docker build -t \$IMAGE ./Application-Code/${DIR}
-          - echo "Pushing image to registry"
-          - echo "\$HARBOR_PASSWD" | docker login \$HARBOR_URL -u 'robot$'\$HARBOR_USERNAME --password-stdin
-          - docker push \$IMAGE
-      EOF
-      done
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in generate-build-stage: [$DIRS]" # Debug DIRS
+    if [ -z "$DIRS" ]; then
+      echo "No directories to build"
+      exit 0
+    fi
+    git status 
+    git branch 
+
+    echo "Creating docker-build-pipeline.yml..."
+    for DIR in $DIRS; do
+      cat <<EOF >> docker-build-pipeline.yml
+    build ${DIR} image:
+      stage: build
+      image: ${DOCKER_IMAGE}
+      services:
+        - ${DOCKER_IMAGE}
+      variables:
+        GIT_STRATEGY: clone 
+        GIT_CHECKOUT: true
+        GIT_CLEAN_FLAGS: -ffdx
+      tags:
+        - devops-k8s-runner
+      before_script:
+        - until docker info >/dev/null 2>&1; do sleep 1; done
+        - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
+      script:
+        - ls -ltra
+        - ls -l ${DIR}/ || echo "Directory ${DIR} not found"
+        - echo "Building ${DIR} image"
+        - IMAGE=\${HARBOR_URL}/\${HARBOR_REPO}/\${DIR}:\${CI_COMMIT_TAG}-\${CI_COMMIT_SHORT_SHA}
+        - docker build -t \${IMAGE} \${DIR}
+        - echo "Pushing image to registry"
+        - docker push \${IMAGE}
+      rules:
+        - if: '\$CI_COMMIT_TAG && \$CI_COMMIT_TAG =~ /-dev$/'
+          when: always
+        - when: never
+    EOF
+    done
   artifacts:
     paths:
-      - docker-build-pipeline.yml
+    - docker-build-pipeline.yml
+    expire_in: 1 day
 
+# Stage 3: Build docker image
 trigger-docker-build:
-  stage: build
+  stage: build-docker-image
+  extends: .default-develop-rules
+  variables:
+    GIT_STRATEGY: none
   trigger:
     strategy: depend
     include:
-      - artifact: docker-build-pipeline.yml
-        job: generate-build-stage
+    - artifact: docker-build-pipeline.yml
+      job: generate-build-stage
   needs:
-    - job: generate-build-stage
-      artifacts: true
+  - job: generate-build-stage
+    artifacts: true
+
+# Stage 4: Security scan
+gitleaks-secret-scan:
+  stage: scan
+  extends: .default-develop-rules
+  image: ${GITLEAKS_IMAGE}
+  variables:
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 1
+  before_script:
+    - apk add --no-cache curl
+    - curl -s -o basic.tmpl https://raw.githubusercontent.com/gitleaks/gitleaks/master/report_templates/basic.tmpl
+  script:
+    - !reference [ .load-changed-dirs ]
+    - |
+      echo "=== Scanning for secrets with GitLeaks ==="
+      if [ -z "$DIRS" ]; then
+        echo "No directories to scan with GitLeaks"
+        exit 0
+      fi
+
+      echo "Directories to scan: [$DIRS]"
+      git checkout "$CI_COMMIT_SHA"
+      mkdir -p ${GITLEAKS_FOLDER}
+      SCAN_EXIT_CODE=0
+      REPORT_FILENAME="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+      JSON_REPORT="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.json"
+
+      # Create .gitleaks.toml to restrict scan scope
+      cat <<EOF > .gitleaks.toml
+        [allowlist]
+        paths = [
+          "manifest/**",  # Exclude manifest directory
+          "!(beeshoes-backend/**)",  # Allow only beeshoes-backend
+          "!(beeshoes-frontend/**)"  # Allow only beeshoes-frontend
+        ]
+      EOF
+
+      # Combine scan results into a single HTML file
+      echo "<html><body><h1>GitLeaks Scan Report</h1>" > "$REPORT_FILENAME"
+      for DIR in $DIRS; do
+        if [[ "$DIR" != "beeshoes-backend" && "$DIR" != "beeshoes-frontend" ]]; then
+          echo "Skipping $DIR: Only beeshoes-backend and beeshoes-frontend are supported"
+          continue
+        fi
+        if [ -d "$DIR" ]; then
+          echo "Scanning directory: $DIR"
+          echo "Directory $DIR contents:"
+          ls -l "$DIR/"
+          echo "<h2>Results for $DIR</h2>" >> "$REPORT_FILENAME"
+          gitleaks detect --source="$DIR" \
+            --no-git \ 
+            --config-path=.gitleaks.toml \  
+            --report-format=template \
+            --report-template=basic.tmpl \
+            --verbose \
+            --append-report="$REPORT_FILENAME" || SCAN_STATUS=$?
+          if [ "${SCAN_STATUS:-0}" -ne 0 ]; then
+            echo "Secrets detected in $DIR! Generating JSON report..."
+            gitleaks detect --source="$DIR" \
+              --no-git \
+              --config-path=.gitleaks.toml \
+              --report-path="${JSON_REPORT}.${DIR}" \
+              --report-format=json
+            cat "${JSON_REPORT}.${DIR}"
+            SCAN_EXIT_CODE=1
+          else
+            echo "No secrets detected in $DIR"
+            echo "<p>No secrets detected in $DIR</p>" >> "$REPORT_FILENAME"
+          fi
+        else
+          echo "Directory $DIR does not exist, skipping"
+          echo "<p>Directory $DIR does not exist</p>" >> "$REPORT_FILENAME"
+        fi
+      done
+      echo "</body></html>" >> "$REPORT_FILENAME"
+      if [ "$SCAN_EXIT_CODE" -ne 0 ]; then
+        echo "Secrets detected in at least one directory! Check reports in ${GITLEAKS_FOLDER}"
+        exit 1
+      fi
+  artifacts:
+    paths:
+    - "${GITLEAKS_FOLDER}/*.html"
+    - "${GITLEAKS_FOLDER}/*.json"
+    expire_in: 1 day
+    reports:
+      sast: "${GITLEAKS_FOLDER}/*.html"
+  allow_failure: true
+  tags:
+  - devops-k8s-runner
+
+trivyfs-code-security-scan:
+  stage: scan
+  extends: .default-develop-rules
+  image: ${TRIVY_IMAGE}
+  variables:
+    GIT_STRATEGY: clone
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
+  script:
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in trivyfs-code-security-scan: [$DIRS]" # Debug DIRS
+    if [ -z "$DIRS" ]; then
+      echo "No directories to scan with Trivy FS"
+      exit 0 # Exit successfully
+    fi
+
+    mkdir -p ${TRIVYFS_FOLDER}
+    for DIR in $DIRS; do
+      echo "Scanning directory: $DIR"
+      REPORT_FILENAME="${TRIVYFS_FOLDER}/trivyfs_scan_${DIR}_${CI_PROJECT_NAME}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+      trivy fs --severity ${SEVERITY_LEVELS} --format template --template "@contrib/html.tpl" --output "${REPORT_FILENAME}" "./${DIR}" || echo "Scan completed with findings"
+    done
+  artifacts:
+    paths:
+    - "${TRIVYFS_FOLDER}/*.html"
+    expire_in: 1 day
+    reports:
+      sast: "${TRIVYFS_FOLDER}/*.html"
+  allow_failure: true
+  tags:
+  - devops-k8s-runner
+
+snyk-scan:
+  stage: scan
+  extends: .default-develop-rules
+  image: ${SNYK_IMAGE}
+  variables:
+    GIT_STRATEGY: clone
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
+  before_script:
+  - npm install -g snyk-to-html
+  - apt-get update && apt-get install -y maven || echo "Maven already installed or not needed"
+  - if [ -f "${BEESHOES_BACKEND_DIR}/mvnw" ]; then chmod +x ${BEESHOES_BACKEND_DIR}/mvnw; else echo "No mvnw found in ${BEESHOES_BACKEND_DIR}, using system Maven"; fi
+  script:
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in snyk-scan: [$DIRS]"
+    if [ -z "$DIRS" ]; then
+      echo "No directories to scan with Snyk"
+      exit 0
+    fi
+
+    mkdir -p ${SNYK_FOLDER}
+    SAST_REPORTS_COLLECTION=""
+
+    for DIR in $DIRS; do
+      if [[ "$DIR" != "${BEESHOES_BACKEND_DIR}" && "$DIR" != "${BEESHOES_FRONTEND_DIR}" ]]; then
+        echo "Skipping $DIR: Only ${BEESHOES_BACKEND_DIR} and ${BEESHOES_FRONTEND_DIR} are supported"
+        continue
+      fi
+
+      echo "Scanning directory: $DIR"
+      if [ ! -d "$DIR" ]; then
+        echo "Error: Directory $DIR does not exist. Skipping Snyk scan."
+        continue
+      fi
+
+      echo "Scanning directory: $DIR"
+      echo "Contents of $DIR:"
+      ls -l "$DIR/"
+      cd "$DIR"
+
+      # Define JSON output paths
+      DEPENDENCIES_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-dependencies.json"
+      CODE_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-code.json"
+      IAC_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-iac.json"
+
+      # 1. Code Dependencies Scanning
+      echo "Running code dependencies scan for $DIR..."
+      if [ "$DIR" = "${BEESHOES_BACKEND_DIR}" ] && [ -f "pom.xml" ]; then
+        echo "Detected Maven project in $DIR"
+        if [ -f "mvnw" ]; then
+              ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml" || echo "mvnw dependency:tree failed, trying system Maven"
+              MVN_CMD="./mvnw"
+        else
+          mvn dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml" || echo "System Maven dependency:tree failed"
+          MVN_CMD="mvn"
+        fi
+        snyk test \
+          --severity-threshold=high \
+          --json-file-output="${DEPENDENCIES_JSON_OUTPUT}" \
+          --print-deps || echo "Snyk test for $DIR dependencies found vulnerabilities or an error occurred. Exit code: $?"
+        if [ -f "../${DEPENDENCIES_JSON}" ]; then
+          snyk-to-html -i "../${DEPENDENCIES_JSON}" -o "${SNYK_FOLDER}/${DIR}-dependencies.html"
+          cat "${SNYK_FOLDER}/${DIR}-dependencies.html" >> "$SAST_REPORT"
+        fi
+      elif [ "$DIR" = "${BEESHOES_FRONTEND_DIR}" ] && [ -f "package.json" ]; then
+        echo "Detected npm project in $DIR"
+        npm install || echo "npm install failed, proceeding with Snyk scan"
+        snyk test \
+          --severity-threshold=high \
+          --json-file-output="${DEPENDENCIES_JSON_OUTPUT}" \
+          --print-deps || echo "Snyk test for $DIR dependencies found vulnerabilities or an error occurred. Exit code: $?"
+        if [ -f "../${DEPENDENCIES_JSON}" ]; then
+          snyk-to-html -i "../${DEPENDENCIES_JSON}" -o "${SNYK_FOLDER}/${DIR}-dependencies.html"
+          cat "${SNYK_FOLDER}/${DIR}-dependencies.html" >> "$SAST_REPORT"
+        fi
+      else
+        echo "Skipping dependencies scan for $DIR: No pom.xml or package.json found"
+      fi
+
+      # 2. Source Code Scanning
+      echo "Running source code scan for $DIR..."
+      snyk code test \
+        --severity-threshold=high \
+        --json-file-output="${CODE_JSON_OUTPUT}" \
+        . || echo "Snyk code scan for $DIR completed with findings or an error occurred. Exit code: $?"
+      if [ -f "../${CODE_JSON}" ]; then
+        snyk-to-html -i "../${CODE_JSON}" -o "${SNYK_FOLDER}/${DIR}-code.html"
+        cat "${SNYK_FOLDER}/${DIR}-code.html" >> "$SAST_REPORT"
+      else
+        echo "No code scan results for $DIR (Snyk Code may be disabled)"
+      fi
+
+      # 3. Infrastructure as Code Scanning
+      echo "Running IaC scan for $DIR..."
+      snyk iac test \
+        --severity-threshold=high \
+        --json-file-output="${IAC_JSON_OUTPUT}" \
+        . || echo "Snyk IaC scan for $DIR completed with findings or no valid IaC files. Exit code: $?"
+      if [ -f "../${IAC_JSON}" ]; then
+        snyk-to-html -i "../${IAC_JSON}" -o "${SNYK_FOLDER}/${DIR}-iac.html"
+        cat "${SNYK_FOLDER}/${DIR}-iac.html" >> "$SAST_REPORT"
+      else
+        echo "No IaC scan results for $DIR (no valid IaC files found)"
+      fi
+      cd ..
+    done
+    echo "All Snyk reports generated."
+  artifacts:
+    paths:
+      - "${SNYK_FOLDER}/*.html"
+      - "${SNYK_FOLDER}/*.json"
+    expire_in: 1 day
+    reports:
+      sast: "${SNYK_FOLDER}/snyk_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+  allow_failure: true
+  tags:
+  - devops-k8s-runner
 
 trivy-image-security-scan:
   stage: scan
-  tags: 
-    - image-related
-  image: docker:28-dind
-  services:
-    - docker:28-dind
-  script:
-    - mkdir image-scan-results
-    - DIRS=$(cat changed_dirs.env)
-    - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-    - |
-      for DIR in $DIRS; do
-      IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-      docker pull $IMAGE
-      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $IMAGE --severity HIGH,CRITICAL --no-progress --ignore-unfixed >> image-scan-results/${DIR}-scan-results.txt &
-      done
-    - wait
-  artifacts:
-    paths:
-      - image-scan-results   
-
-trivy-code-security-scan:
-  stage: scan
-  image: aquasec/trivy:latest
-  script:
-    - ls
-    - mkdir code-scan-results
-    - CHANGED_DIRS=$(cat changed_dirs.env)
-    - |
-      for DIR in $CHANGED_DIRS; do 
-      trivy fs --severity HIGH,CRITICAL --no-progress --ignore-unfixed \
-      ./Application-Code/$DIR >> code-scan-results/$DIR-scan-results.txt; done
-  artifacts:
-    paths:
-      - code-scan-results   
-
-# sonarqube-code-quality-scan:
-#   stage: scan
-#   image: 
-#       name: sonarsource/sonar-scanner-cli:11
-#       entrypoint: [""]
-#   variables:
-#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-#     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-#   cache:
-#     policy: pull-push
-#     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-#     paths:
-#       - "${SONAR_USER_HOME}/cache"
-#       - sonar-scanner/
-#   script: 
-#     - sonar-scanner -Dsonar.host.url="${SONAR_URL}"
-#   allow_failure: true
-
-Precheck-manual-gate:
-  stage: precheck
-  script:
-    - echo "Manual approval required before pushing images and artifacts."
-  when: manual
-  allow_failure: false
-
-# generate-sbom-files:
-#   stage: push
-#   tags: 
-#     - image-related
-#   image: docker:28-dind
-#   services:
-#     - docker:28-dind
-#   script:
-#     - mkdir sbom-files
-#     - DIRS=$(cat changed_dirs.env)
-#     - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin 
-#     - |
-#       for DIR in $DIRS; do
-#         IMAGE=$HARBOR_URL/$PROJECT_NAME/${DIR}:$CI_COMMIT_SHORT_SHA
-#         docker pull $IMAGE
-#         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${SHORT_IMAGE_NAME}-sbom.json $IMAGE &
-#       done
-#     - wait
-#   artifacts:
-#     paths:
-#       - sbom-files  
-
-# upload_to_minio:
-#   image: minio/mc
-#   stage: push
-#   needs: ["generate-sbom-files", "sonarqube-code-quality-scan", "trivy-code-security-scan", "trivy-image-security-scan"]
-#   script:
-#     - TIMESTAMP=$(date +%Y%m%d)
-#     - ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_SHORT_SHA}"
-#     - mkdir $ARTIFACT_DIR
-#     - mc alias set myminio "$MINIO_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-#     - cp -r sbom-files code-scan-results image-scan-results $ARTIFACT_DIR
-#     - mc mirror "$ARTIFACT_DIR" myminio/"$MINIO_BUCKET"/"$ARTIFACT_DIR"
-
-# Update image tag of Helm chart
-deploy:
-  stage: push
-  needs: ["detect-changed-folders", "Precheck-manual-gate"]
+  extends: .default-develop-rules
+  image: ${TRIVY_IMAGE}
+  variables:
+    GIT_STRATEGY: none
   before_script:
-    # Configure git user
-    - git config --global user.email "${GITHUB_EMAIL}"
-    - git config --global user.name "philogn"
-    - apk add --no-cache curl
-    - apk add --no-cache yq
+  - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
   script:
-    # Clone Helm chart repo
-    - git clone https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git
-    - DIRS=$(cat changed_dirs.env)
-    - cd Three-tier-app-HelmChart
-    # Update values.yaml
-    - |
-      for DIR in $DIRS; do 
-        yq -i ".$DIR.image.tag = \"${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml; 
-      done
-    # Commit and push changes
-    - git add .
-    - git commit -m "Update images tag:${CI_COMMIT_SHORT_SHA}"
-    - git push https://${GITHUB_TOKEN}@github.com/philogn/Three-tier-app-HelmChart.git main
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in trivy-image-security-scan: [$DIRS]"
+    if [ -z "$DIRS" ]; then
+      echo "No directories to scan with Trivy"
+      exit 0
+    fi
+    mkdir -p ${TRIVY_IMG_FOLDER}
+    for DIR in $DIRS; do
+      IMAGE=${HARBOR_URL}/${HARBOR_REPO}/${DIR}:$CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA
+      REPORT_FILENAME="${TRIVY_IMG_FOLDER}/trivy_img_scan_${DIR}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+      trivy image --format template --template "@contrib/html.tpl" --output ${REPORT_FILENAME} $IMAGE
+    done
+  artifacts:
+    paths:
+    - "${TRIVY_IMG_FOLDER}/*.html"
+    expire_in: 1 day
+    reports:
+      sast: "${TRIVY_IMG_FOLDER}/*.html"
+  tags:
+  - devops-k8s-runner
+
+sonarqube-code-quality-scan-be:
+  stage: scan
+  extends:
+    - .rules-for-sonar-be
+  image:
+    name: ${SONAR_IMAGE}
+    entrypoint: [ "" ]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
+    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+    - "${SONAR_USER_HOME}/cache"
+    - sonar-scanner/
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
+  script:
+  - |
+    if [ -f "${BEESHOES_BACKEND_DIR}/pom.xml" ]; then
+      echo "Running SonarQube scan for ${BEESHOES_BACKEND_DIR} (Maven project)"
+      cd "${BEESHOES_BACKEND_DIR}"
+      mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+        -Dsonar.host.url=$SONAR_URL \
+        -Dsonar.login=$SONAR_TOKEN || echo "SonarQube scan completed for ${BEESHOES_BACKEND_DIR} with possible findings"
+      cd ..
+    else
+      echo "Skipping ${BEESHOES_BACKEND_DIR}: Not a recognized project or no pom.xml found"
+    fi
+  allow_failure: true
+  tags:
+  - devops-k8s-runner
+
+precheck-manual-gate:
+  stage: precheck
+  variables:
+    GIT_STRATEGY: none
+    PRECHECK_APPROVED: "true"
+  script:
+  - echo "Manual approval required before pushing images and artifacts."
+  allow_failure: false
+  when: manual
+  tags:
+  - devops-shell-runner
+  only:
+  - tags
+
+generate-sbom-files:
+  stage: push-artifacts
+  extends:
+  - .docker-job-template
+  - .default-develop-rules
+  - .rules-for-precheck-manual-gate
+  variables:
+    GIT_STRATEGY: none
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
+  - job: precheck-manual-gate
+    artifacts: false
+  script:
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in generate-sbom-files: [$DIRS]" # Debug DIRS
+    if [ -z "$DIRS" ]; then
+      echo "No directories to process"
+      exit 0
+    fi
+
+    mkdir -p sbom-files
+    for DIR in $DIRS; do
+      echo "Processing directory: $DIR"
+      IMAGE=${HARBOR_URL}/${HARBOR_REPO}/${DIR}:${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}
+      docker pull $IMAGE
+      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/sbom-files:/sbom-files $TRIVY_IMAGE image --format cyclonedx -o /sbom-files/${DIR}-sbom.json $IMAGE &
+    done
+    wait
+  artifacts:
+    paths:
+    - sbom-files
+    expire_in: 1 day
+  #when: manual
+  tags:
+  - devops-k8s-runner
+
+upload_to_minio:
+  image: ${MINIO_IMAGE}
+  stage: push-artifacts
+  extends:
+  - .default-develop-rules
+  - .rules-for-precheck-manual-gate
+  variables:
+    GIT_STRATEGY: none
+  needs:
+  - job: generate-sbom-files
+    artifacts: true
+  - job: trivyfs-code-security-scan
+    artifacts: true
+  - job: trivy-image-security-scan
+    artifacts: true
+  - job: snyk-scan
+    artifacts: true
+  - job: precheck-manual-gate
+    artifacts: false
+  script:
+  - |
+    echo "Uploading artifacts to MinIO..."
+    TIMESTAMP=$(date +%Y%m%d)
+    ARTIFACT_DIR="${TIMESTAMP}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}"
+    mkdir -p $ARTIFACT_DIR
+
+    # Check if required directories exist
+    for dir in sbom-files ${TRIVY_IMG_FOLDER} ${TRIVYFS_FOLDER} ${SNYK_FOLDER}; do
+      if [ -d "$dir" ]; then
+        echo "Copying $dir to artifacts"
+        cp -r "$dir" $ARTIFACT_DIR/
+      else
+        echo "Warning: $dir not found"
+      fi
+    done
+
+    # Upload to MinIO
+    mc alias set myminio "${MINIO_URL}" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}"
+    mc mirror "${ARTIFACT_DIR}" myminio/"${MINIO_BUCKET}"/"${ARTIFACT_DIR}"
+  artifacts:
+    paths:
+    - $ARTIFACT_DIR
+    expire_in: 1 day
+  # only:
+  # - tags
+  tags:
+  - devops-k8s-runner
+  when: manual
+
+update-images-tag:
+  stage: update-helm-chart
+  extends:
+  - .default-develop-rules
+  - .rules-for-precheck-manual-gate
+  variables:
+    GIT_STRATEGY: none
+  needs:
+  - job: detect-changed-folders
+    artifacts: true
+  - job: precheck-manual-gate
+    artifacts: false
+  before_script:
+  - git config --global user.email "${GITHUB_EMAIL}"
+  - git config --global user.name "${GITHUB_USERNAME}"
+  - apk add --no-cache curl yq
+  script:
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "Current DIRS in update-images-tag: [$DIRS]" # Debug DIRS
+    if [ -z "$DIRS" ]; then
+      echo "No directories to update"
+      exit 0
+    fi
+
+    git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git
+    cd ${HELM_REPO}
+
+    for DIR in $DIRS; do 
+      echo "Updating image tag for $DIR"
+      yq -i ".$DIR.image.tag = \"${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml
+    done
+
+    git add .
+    git commit -m "feat: update images tag:${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}"
+    git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git main
+  #when: manual
+  tags:
+  - devops-k8s-runner
+  # only:
+  # - tags
 

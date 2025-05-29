@@ -1,0 +1,95 @@
+services:
+  beeshoes-frontend:
+    container_name: beeshoes-frontend
+    image: beeshoes-frontend:v1
+    build:
+      context: ./bee-shoes-frontend
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
+    ports:
+      - 50000:80
+    depends_on:
+      - beeshoes-backend
+    networks:
+      - beeshoes-network
+
+  beeshoes-backend:
+    container_name: beeshoes-backend
+    image: beeshoes-backend:latest
+    build:
+      context: ./bee-shoes-backend
+    ports:
+      - 50001:8080
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_NAME=${CLOUDINARY_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - CLIENT_DOMAIN=${CLIENT_DOMAIN}
+    depends_on:
+      beeshoes-db:
+        condition: service_healthy
+    networks:
+      - beeshoes-network
+
+  beeshoes-db:
+    container_name: beeshoes-db
+    image: bitnami/mariadb:11.4.7
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MARIADB_DATABASE=${DB_INIT_DATABASE}
+      - MARIADB_USER=${DB_USERNAME}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+      - MARIADB_SSL=no
+      - MARIADB_EXTRA_FLAGS=--bind-address=0.0.0.0
+    ports:
+      - 53306:3306
+    volumes:
+      - ./data/bee-shoes-db:/var/lib/mysql
+      #- ./db/bee-shoes-db-1.sql:/docker-entrypoint-initdb.d/bee-shoes-db-1.sql
+    networks:
+      - beeshoes-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_PASSWORD}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  beeshoes-db-init:
+    container_name: beeshoes-db-init
+    image: beeshoes-db-init:v1
+    build:
+      context: ./db
+    environment:
+      - DB_HOST=beeshoes-db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_INIT_DATABASE=${DB_INIT_DATABASE}
+    networks:
+      - beeshoes-network
+    depends_on:
+      beeshoes-db:
+        condition: service_healthy
+    restart: on-failure
+
+networks:
+  beeshoes-network:
+    driver: bridge

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: beeshoes-db-init
+  namespace: beeshoes
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3  # try 3 times if failed
+  ttlSecondsAfterFinished: 3600  # auto delete job after 1 hour
+  template:
+    spec:
+      containers:
+        - name: init-beeshoes-db
+          image: harbor.deploy.io.vn/beeshoes/beeshoes-db-init:v1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: beeshoes-db-secret
+                  key: DB_HOST
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: beeshoes-db-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: beeshoes-db-secret
+                  key: DB_PASSWORD
+            - name: DB_INIT_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: beeshoes-db-secret
+                  key: DB_INIT_DATABASE
+      imagePullSecrets:
+        - name: harbor-secret
+      restartPolicy: OnFailure 

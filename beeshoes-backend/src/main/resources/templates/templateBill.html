@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        p {
+            margin: 2px;
+        }
+
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .th, .td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .th {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+
+<body style="margin: 20px 20px 50px 20px; border: 2px solid black">
+<div class="" th:if="${invoice.typeBill}">
+    <div class="" style="display: flex; justify-content: space-around;">
+        <div class="" style="display: flex; justify-content: space-around;width: 50%">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAU4AAACWCAYAAACxSWGfAAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4nO2dC3wU1dXAz+wjCUEIgeUVEh5xEXzhh1G/+qovVKI8A4G+1PooKq2tT6A/rYo/q4L6Sf2sLbS29fFVIYIYhSAEi1ar1UZRUUBigLA8EgJhFTAkuzvf7969s94MM7vz3plw/r/f5t69Oztz72z27Dn33HuOIIoieIHo9PCZpJsFi+s/9ESHTRKdHs5nZ7irYHH9XM8OBEG6ID78UBEEQfThJY3zbVZ9CZKa59PZ7ZF9RKeHuwPACnYBf+jVyPdJpaOtzRsfFoJ0cQJuHl4wL0+Q6i0Ti/2s+hT5E50WPi5UHXkUupBA2Tc53JOUgRwqNM9jze9Ir0v3AwUogmQXNNURBEF04mqNk4NoWj3ZU4H9ndcyoZg6UIJ5eXO9roW1VoR7BXJgJXt6NveSwP3AJYBpnqh1Ikj2cK3gZGapZKora8YC3EcKIkCDeXmzwYNmbLQi3JuUviC8AQBnqBwmyEoUmgiSRdBURxAE0YnbTXVe0+qW5qi7WiYUE080zB1VdMt9n+5KONVBo0SnhEP0rUFYzU4xWvFUIgiocSKIu/DSHGdOhiNmkuLWkfnd1l0yYgapX7h2c8yh/ukiOiXcDwIpgXmahvcKGo5BEMQh0FRHEATRiZc0Tm1CXoBrR/eJ55Fq3diR15CybNWmDpv7p4loRXgAPS4IawHgJI1vQ20TQVwGapwIgiA68YrGSeih+UgBfkiKcEGMOpTqx434Qfj1zUds7FtGolPDRRCEWnbciTrfjlongrgILwlOI0wi7+nbPb5896QTppD6wOVfHnayA9Gp4WJa8VPz/AQnr40giD2gqY4gCKITtwtOfg1jHnsYYWx+bmIFeeydPFy7yW+S6NTwEPDDOvpAbRNBugxeMtXTr+PMzIX0JDniqtaK8JWkXris/oAdHY1ODQ+jFT+8CQBD7bgGgiDZA011BEEQnXhC4yzJC1jpVT7HF6SaINnBc1nB0voWq04crQyHaSXpCCIMturcCIK4B08IzsdOHdjT4u3ZyX3hAVgXrQiPIdWCZfV7zJwwWhkeAb6UwBxkQR8RBHEpaKojCILoxBMaZ1siIdi0BvxkCFKPN3HoXErKgpfrd+g5QbQynNw66aOL2wfa0UkEQdwFapwIgiA68YTgHJIfzLXx9CPoww9vkUe0Mlyq9Y3RyvAp4IM36QO1TQQ5ZvCEqZ4fADsFp0Ry7aWPCs+k2V5Vv0npwGhleDQ7lqS76OtA3xAEcRFoqiMIgujEE4Lz4/3tB0CE7fRhP8Xgg3XkEa0MjyJJ4/hHtDJcBj5YQx9OaJsJ+LcDY0YQRAeCKLozfQ3LculnTwPLvzeYLiY/r1/iddoiwHAHurEP4lDO6skfGT/UkN2atl85Dn8ixYjVu2/f1x5vT7UmSWB6YATJHmiqIwiC6MTtGqck2AOSI2vRfxUVkbJisG85CJrTT5ghKntvge1X7IA/hGt3/5pUD7THSdoPKekcapwI4gK8Ijj93AoAWv72xFDfG8N5S2mLT1OmSPfTAf9L+hhaGbmXE5YxTmBKpYiCE0GyB5rqCIIgOnG7xints/TxjiJW+mcN70WdNLNGHrcEfHBWdnpqDYkOeKLfysgD7GRxTrvkNc4E+YPaJoJkF9Q4EQRBdOJajRO+0zqBaZ6SxsmXtH7TsPyeD57S+0Xa6oPzstFXoyTaYT55a7+ayMOyuUy+nmB1+mGhxokg2cXVglNC5ijiHUYpITptULA7qTx9ev/nwAdjstZZjcTa4UFy5ICayOPsHXJhyZvnKDARxEWgqY4gCKITT2ic0Nls5zXPo8z283oHuy0/p/9fWOsV2ehrJtrbhblFNTsWsMMymueoaSKIu+gkOKPTw9I2xnMAuIhEIkgpdYOpNiHV5udG1IvzhAtcG3DH9mT1DwHgblIpWFyvWTDIBKii2X5yz1za97e+3/cP7NUpLrjr4pF24TekMqhmx+8V1maaNs+j08Pk3jzMnpZZ2XkVSPBm8vnNc+Bacsj4HrH5Gq0AUMfVG6QxI8c2XkoPjCA8ZCmaE3PZlQpttexRxYQpcozRSXB+e0TYRcpuueJ1APD91Au2ZK2g//R5kNQi7wCN2pV0TDAvL6F2zOdfHzlCyrPe3HMTKT+4cEAbBOHHVnZeB7S/be3CnOKaHYvY2+RmOZgxz+eOKqKa960n5v8OAH7h0Lje+vaI8BSphPLyhGNsOmEMezzCBOg81ESPLVKmOr/gvO7iYQVDenSsYnfC/oXlIvyWFKHqyG/0fAFVliv5+EXy5E+PgM+/9bKiR5Nvguut7XxaxMNHfHeSAwavavxLmvlMMGqek3vQMqH4CfpEgF85MKZ3yZ8P9/qvLP/X9oOsLfUj5qAAJYJrjUPX0gLRPm9kJj3SxUGvOoJYAzHpv3JobhnJMnKNM+WxrjqrpDepXDRAXA0CjHKkmyLcE6qOPAQGtK5M2zOJ1kkqWy8rmgtBuMXqrsugWuThI77bB69qfI69lG6dJug1zyVtu2VC8aMgwB32DINDTAZUXt6YmEDKG9bvOsD1PRtrTd2mcUq0Ms2zyh3dQewANU4EsRbitFqImmfXRk3j9Ev1l84s6T9moFhDWwU40fa7IcLtkJzvXGBivpMfB8jC0vmay4tprEtfDsyysuuSFnmwzUc12qFvNL5oxzZKNq9J54VBgF9bOgIlRPjo+YaO8eSV2zY0HeDGkM3dTW7VOCWI5nk8znl2TVRNdd7MfeGM4kGkMrYIVtIWATSn0DVAskMi3ByqjlAvtEmzHeTrPKX6rvKS23JyxHst6nc8+q1/Jqkcv3r7EqlNFuXIlGnLmef3gwBW9VsdET4hr/1xS9uEeza27OfGBHLBmQWvutsFJzBzfZoL+oFYDJrqCGIflQ6tNUUcRnE5koKDhdZfPLOkhJSXEtNdgBKbu5oAEch6UmK2P2fCbAe17ZmkjJSXzCCVvBzxEdl7tEJSW0DrIf+Nw2u3v8Lew2tlUiT3hAWOoHtYDx/I9B7TiLBh4Za2SeQ0d29s2SvTnMHMulOL8ILGCah1dk06bbnUsJ2Rmu+v/Pfg8Pn9E6/RFgEG2nhnkl9WEX4Uqo5QL6VF855HCdHGsYOvIWV+buJx2TbSdLS3HvL/jLw+vHZ7dQbhYmad5iw2Cru3GJIebiTFsw3tE+/Y0NzEWtXWnWYzsLJXBCehN851di3QVEcQ+0FzvYuhGB1JwVF01LrI1ecOGUkqp/eJrwAB+th8W9pBTO4ZDlVHqKZr0TpPufYJX102ZHpBt/jv+TbF/gBA86HAtSfVblvJ2uJK2SgtMM9vAwEez/wOCxDhy+e3Mu/5Z017Mqw7zXamTS9pnHPYtkyki6AaVi6N2Q78vOe684eeekrv2GusvdfRZ7IMKqxABPrFDlVH1thgttNyy5ghdJF3Yff4nwAgR3aqI3sOBa4mlVNqt61OlxvIpHn+S9bbJ2yLFiAh0h0vsKwxMW7G+l27Was8uyY/JjcEVTYrOC9N81opF0TECm2xNsP1rKSQrSGV1pGWsTa+L8BFfqqzrytdF4yOhByraAnKMY8JHrcvaC9lHvxKDf2U/xC0yqI9uX0utpQ91MbpSPi/jIGM06StSJntH1w09AxSKe0ZW8bF27SLw/S8cbgy9HrkLTBvtktj4gODUO3z8zFDL+/fPfY31k6vsftQ4KpTa7etZW1y87yTVmbCPL8JBJCmC+zTNkXYSooVO0WqxV9TtzMiG49bHEFKmNU49dxX8iX9j4lr2aVxknsw28I51FYmPOe5LFxeJaf961lDXsf9IFiqWaNzCEEyU+eyveel7EdjjcWOJ2LSz2DBSmbLTHynKWR9IBsvlrB+6d14U8bO8R92r2ZYNQZNqTNU0lYcpaHVXTzsnCE9Opay9m5WdVKFryEOY8lLodcj71sw36mkTfs+vXjoRaQiCkmN67S1295Ks41S6oPRec3rWa8WOTCvuX1lBMaR6tUfRXawVtV5TRfG23RS4wT2BTS6HMxKjdNMP/TSwAKWOB1rdLaNgruOOetMjUlXziEVh1GAd6x8PiYpaPp3j73E2nKPPpNlROmJEnBR6LXIerBme6bc6y6180JRSXCKJrdR/hQE+LOsL9YjAjHHYe1uYdz0D3ds48YBCg4ut5nnPF4SnPPYl9UMUvAQpYj0duPUqgAn55PnsYehOV10DiGINsx8mc3OFxayH4lsOageYWbyjTZeYwYTmnqokwm+Uh3mvDQ3PM3I52Moy6VCJKWj1kV+MWYozTDZL+lckS/psZq9kICLyTlDr0U+N7k9Ux5NXq798WszO5nnBjXNH7Or/k3HjiVjiLDr7SYfdQRV/Lvxq0w7nVyeDsNJjbOQzfsZNR2PNyE8sy00eRbZJDwfYYIsE1XMxM60jGoMu19aVhm0smkUXc4jM4JTIu2C8i1jhkwu7B7/M99mE8n1hwm4oKCqfouJMcnNd/kXTJSFhDM6nzmNXe3/bL83IpDF7PBOs2/8pPcbpXuTdsG+B3IIOSU4C5lzwqgTxsz8ppuEpoTVwnNhBqdNKzOpFxk0q0uZUM50DV3CE73qCKJMKeeRNeO5NuONd5vQBCaAtGiHWsgkNKuYtm54LpJzcJ2RRjDq/oEypHGCstYJajtxtl0++Iekclxe4vcOCOsIxJMZOgtert+q982ycQkqGmfqphk0z6eAAC+yZnvnmUXYW7fXT73nl7+3fXOmnU4eylbphS2XZrRNreZrtrjUpGc605zmjUzLtJp0wlpz8GnDglNC5pkWFARnyuveOHbwT/NzE//DHWsX9fS88eS8Z8HL9TuMXEcmRFMYES7MPJ/IRr7Y9nlfEfaRYv0+//gx727/grWmXbDvsRS/XogAf4bBuU0v/Cg0sPEZ0QTTbSgwNOeok3RCW9OPHXrVEcR6pC+/EaFZaMC7LEfaAdSgIIAKuS2aZqYBpKkMvcuspDljtX7bLTSB02SV7rO0Gyvt8ivTGieoO1aU8v34d5aX3EwquTniQ6YvnJlN9IgYXFCwtL7ZgesdBWeel4MAUqBjO7VNqmlu2B+gQYgv/Oe2zzy6TjMTbs5yaebLb2a9aAPnSNGCFsdJJvSuGEg3vmkO79BKNx2SdlzoHEIQ66jN4ITIRKGJeU3p2nrmBSXHyTQTzhc9/S1Nc/ycLGxrTbeDKO2PlyUap4SGnTip+c495cV3BHLgHssunp4NEAO6o6lgaX2LQ9eU5jUvo08EWE4ydNh8yQMbmaZ5/j+3rWdtqgnjPKppSrhN47Qin7pRbbOOCU0zmLmfWiPcqzlmGpiGlw1K2RpdJVQdYJYKTlDP96O4PbO5vPhuSKbpvdOBG0YnoxMdcGnhsvoDmQ83DmeeXwwCVLMT5dt4ya/Jny8PBCaf89Y2SdtJm/fI40ITXGyq6zWXeb4yEMjCjBNKjlHBrWVLZrpNBGY99GZRG7fqmlU01RHEWkqZZrVGpxAsMyA0weIQcEYXmWvZP1+pIjTrsiw0Ic2P3Ay13WKWC06iyTBtRuR22UiPGGc6xm/+pOkx8qCBJ1jwCRshv8pn+AIwg2iEakuNLEVM7Tyy/1pEnfd9d2+5R4z/DLjPB7GXMToXzxsN3mHlvGCrQU1ZHmVeCbX7YMdaTb2kG7fi52K5qS5HLd/Pj4oD3Z4cPWAJa7U/rUACniPFRW/vveGz6JFURCMrhYjCNIV/d3kxXXwezIGXHNizv6/pUKCcVE6u3fYJa4t3IfOcx0s5h7R4i43E1rRiblOO0fuaaYxq/3tuyQBaqbJMSjG9M67jRBD7WciEXDqT2si2zkIX/Xikm2ZQG1uti1J1SGlD5JqzYt9tF5xEywnmpZzJiYdP6kvjc/4snPsCCA4lsIrDS+Pf2f1zUv0sSpVNSSO0SwNLaZ4DayJvQHLX1PX5uQkpDYddAT369O8ee51UdpcXX0jKgTWRzTZdC9GOtKhd7f/d6EJ0PWHU7GZMGgeR2viyPbcpp05BUErJ7zotMUONE0GcYQwzB5XM2WymqHCCdONzU855NYugNKuC89XvDQ6e2z/xPHt6pe0XjCd36py7rnnm5oNxaf2iI44aOYNXNVZvu3zwTEgGO3naRq2zHyTnVEnqYmi5ovii0MqI2jq1YxmtWwXLTHi85cxQEZxuzqCplXQCUG18TqUAMctRn70jgnPNuUOokBgdir8AAJNtv2A8uXbye2/u+Rkp6w/HYrLUF3Y7SfhrpRacD32jkQT3IGZ7t/zcxBOs3S5BXkz/BuGNlnFJsx0ADAU76aLoTQVRyr7oZlJXSFka3ZRBEjEAruNEEG00MO+q2eUzbjJNEYPYrnGuu2REYHSfuGSeT7X9g4rDiinvN0uaZkeqtXPUdluQlvvwzjBOo4xL9cGrGp/dWV5Cs4Dm5ogP23xHSsGfnISPVoQvKFhWv8fm63V15qRZzK0FtzhzEBPYJjiJwCTl6D7xZ0CAH9j+ISWSc3pT3m++7q2W9jbWqpSNMmEk3YVBeFO9E4NqdvyRPN9VXkKlbE6OeJ+N/TiB/g3CmuiUcDJG6dL6vTZerysjhWwzGlGoK8xnHvOgVx1B9GP1HKXd8SedwMh6zGzvUTeM5YJz7qgiOm9668j85FyQAFfbPooErJ30bhO9zjv7O9oyZG+0fcuhzGRX0jhTDqGimh0LSNlcXpzvy4G77OwXAJwCAVhFKq0V4UvsDnaC2E6DixxN6YR/rcrcbhkKTiY0bx2ZT01QEOBaK8+tSALWkeaZHzVd9c7+jm/ZIWrZGw2Z59Hp4Uu4c0DB4vp/aH2vfPE/91JMfmy/mshDLVcUJyMoBeHnevqok9PJ4b4grGyePJyGvOv3ypaDNl6vK2L1PKVR4VFlIAK7m/Ds+lX0qiOIPgpNLklSw4i57hUPvdoPg2dXGFgS5IMzz58EwVZt6TsS8O6tHzfRzfcvRDoOZsjeaMg8j04LXwlCasGyyP5WFCypf0PvudSCnfBlj4CPWgBbLy+aDwG4Qe81DEA19m+PCDQQyYDlWw45cE2rcCqvuhwzqS0gTTIwo1kt9aauyBb7VTRMr/S/E6hxIoh2zApNSCMkjDqI7NB+7UAtcpIb+l/IfoiVHorTCZakB26ZUJzcBSPAr0ydTAsJeI8cdevHTVOZpgkKUc5TYePAQO7zlgnFFWw8f1cIBdcGIkwhlVB1pMZIXnWm7fC56IHPSU80z62XFT2VfBP8SM/tMQh1GO095J8Ufn3zEQeuZwVOaJxl3Jeq0qK5zXTR0o1EgAeLtLYyEz8KczQIfrWwbZpzmduIWrpg1ZQehgUnlx7iURDgDtuHloAPSfHA51EqtJ5s+Caqsk4zblRgQnI8PwYBMkUxaqd/RagMVUdeM3gteW4mPy9Ew/kBKrDfv3jAIvBDhdZzm2R5fTRApz/KVm3qsPNCFuCleJw86ZK5mck5dKkJ4VPG7qURZ42efEFqPwxaUm/Yie5+oamOIM6hlOecx2jqijIDqTokKk0ITdAp8NS2q87O4saA2Sr3LW00fEMaJzNnf5s8A/xa9wn0koCP5286SIODzN9yQPrHkmuZhqK6c5rmDWw8f9ARuagdxKQpHaqOLDNhtoOCw4g6ik4tyM35x/l9/8Za7Y8oJdJI9fDxPv9VF67dfNSyKRfhRY1Ti2ZlZh61lZ2/SoPpbkVOdb0R6AtZOhElQWVWazZCKeuP0o9G2s9Kl+DkhMz9IMC9tg8rAZ+SYsHmwxMf/HL/ftZqqXneMqH4F/SJAL9jzXq9rUmTVoSfhKojVUb6wF1XyWwPXBDKoYtBl57d7++0xQeXKJ3LUkT464JNh+mPyX2f7lLcNpplvCg4tcxFphMueqjjIqw3sFLS6iot0vCM7PxRm+sEtTQVNiFFz1e6DxnnXXHLJYI4wxyNDhwpP7vZH4Uym83feQYX7lexh5I3vZI5aRRT8lqIFJFf7f7cmEnz1aRxcprmPcl3wQM2D4xom58vrG+bSKp3b2zZK9MuwSLzfDYIYFV0ojiIcA0kzXaqGZp0GKU0Tqn+k+LgcaRcMLr/YvDBeRb1Wx0RnmLj+aULE715SeNsYCatHjPU6LpOJzBrVmfSqu0029NpmpAulzpPRsHJzNlZ9IngQMRmETaS4tmG9ol3bGhuYq1ysxy4lLdGzPP76RPrpxuSfRPhekgKnOcsMtsDXB2uH5LXY96o0DLa4oOzrByAIiI8HqqO0H30LhKgXhGcrUwIGFmnucSF6zTNjIcnkye/gQkwK/eyj2GaZjqBrWnOFr3qCGIvWtY4qnGjyyInWSU0QYNWWcoE60IL9rSXsvOkW3lQlyaZ3lGoapycOXsbCPC4yY5rQ4Qvn9/aMZ4ce9tnTXvSxNOkpR7th9sWOg8EuNPmkUia502h6sgzYK3ZTvDPGt6L/jPNGnncq+CD06ztvgIizIWkFk1LF2iebtc4W5mjw6zGlMm0dAorhSaPljWkUgzURTqvX8n+TzKtHNA9NYDOIQSxnjoLtUVJYC3JYlAMu4QmcEIrnfAsZMJvBjPha1XWxBYyjbIM0myXlFGlxRkkR1HjVFimY29mSJGu3IdljYlxM9bv2s1aYzKNM6Vpgk6Nh4W7S25hFOBmazufFhFEoJktQ9WRhSbmO48KCCLV55/cr991x+e8yo48yYER0fnuUHXksSxrnW7VOO3cBZMNh5GVPwLpKMzCj4Phz6qT4OTM8xlsITjYKjRF2EqKFTtFap5fU7czIoulacoRxKXvWORIfFBlpKhKvwpVR6jwNmG2HyU4SfnEqf0HkMpVw4IrQICwzeNJIsIvjYzHQtwmOBexL6HdkX4qmQB1InfRPPZwclH6bPawM1Znrcm5Z3QOIYgJ6tgX8HimlTkRHq2KeX7tDGAshb6bk4XgG/PY+MxmE1VC8tSbnnZIaZzMPL8u2Qp/csA8374yAjQO5NUfRaR836rmuR6tpm7syCApwz1jz9EGJ5LFZYaY7dQpFaqOPGHQbPdx5VHa57Nlg0quHCSsoK0CDNFwaimQx3dxOEWQoiN9yx13GIC1C6ksoV9DPBncJfR65OMsaJ1Oapx1TIC0snoDV2aTUqaBWqWh1ZpY2G4H0vhmmNSwq7iHJXQSnJHykmGkHksIgeb2ZFDdthj4orEE/WK2xUX6xY2L5oXqRwe+2Sfbdw5WmOf140bk9u0eX8yeTrTqRlmKCHNC1ZH5escmE6CKUZUkb/voXj16k3J99JuvpfcfisXiTzUc/CbDZfj+8PPKUl0pj5OuHzbEFiq5WJJ6hEwte2jZ355NJIdPGecAUkL6cauTbTu1FPSqI0jXoIoLFlzICRglTVTau+6lRGl1blrTKgRyczMFmeDNQl7TNKJ1ipxGI6psozSkxeyedAJNdJafm1gKAGMN9M1ZRKDbV0PVkYfAmOaZ1mznPh8z1gH/WUmfi6J1gBonciyhpnGqCTgr5j2l8yaUFrUbMc/3Th7eIz9XrGZPL7Sgj/YjwIOQXMFAAxYH8/Lu1zpmlj1TKWIR/7nxglPpc9Mj6HjBKcpKBDnmQK86giCITnhTHWTmXyaNxShK5l9KC9WjabZWhHtBMkc48SSf4+kPX4SHQ9WRu8H89kzpM9RiquvVOuWlqSyiCOJVUONEEATRSaflSCpail3rOeXzqLo0reiUcAgCIOU3P92WHjqNCI9B0mE0y8T2TPnnZfTzy3R9/vNzU7g5BLEdxS2XMuww0zuhS2BWhAckO0sXP59iYd/U+FrW3tP2K4qwYMGmw3RxuZ60FSqfn22gsESOVdBURxAE0YnhvOpOE50aLqaX9KcW7Y5woAv7N+wPTE1eNvkjc2Lv2MsA0Mv2K4vwNCkWbDp8i0uTpSHIMYsnBOe+yeGegRxYz54Os/2CIjST4sMW/5Tyf23/gn/pH+cNHXVqn9hS9rS3A315jMx5AprGCOIa0FRHEATRias1TsnZ0XxF8RBfMBm703ZE2PneXl8Fucz49xq/VLrc2nOHjiLlaX1iy0CAPjZ36d3Qq5Hvs7ru1QcIgliPa4N88Muj9rYHOvoHY5nfZAYRtpN3r90jTJr+QaMkpBMKKwGES97d9gmprDl3yLjRfeLJrZ4C9LWxd5K3HAUmgrgANNURBEF04vawclTTqj+YaO/f3aYriFAPyfQdk4Cm74hEZBGA5FqeT2q79N3tG984ewgNxlzWN14NAvS3oX98JCR63WBeHprrCJJFUONEEATRiScCGbfFRXt2xIjwxeJt8cmk+vNPdzex1rhKfFAJPv4lXP7e9s2kXHH2kHH/3TcuZZsssrin8q2wqG0iSBZxrVedOYeogCrK8Qc/LR942LKTJ4A6dxbWt025e2NLC2uVhGVMFif0KOcQp6kH+CDCVWeV0JQFFw0QJQFaYrqvIrwXqo5IMUYxcDCCuAA01REEQXTiCVN9V3vcOu0qAf+ev+ngdFKdv+XAAZmmCfL0HQpn4PvSaY1U5Qc7aLKrxWeW0DzxlwwUX9WYbTITjgbvQBAkPV5K1tbOyhxD707AO6SY/WnLD57Z3iZlepTPZ4KW9B2ytBWS8EwdO/3DHdtI+cIZxePHFoFkttu/VRRBEEdAUx1BEEQnXtI421ipX+NMQO3Mj5quJtUlOzsOpcnjDlocL9LrKgnTUvzkP5HGv44eRNd5ji8RiNke1t13BEFcR9fOqx6nuYhg0r+arn9nf8e3qVaVdMSgcx94mmyTKa79eOdOUl8kFo2vGOyTzPYTjA4JQZDsg6Y6giCITryicRItUHLoZE5dEQcSbBgueHvvTFJ+/nXHkTTmuW5Nk0er2T5j/a7dh+L9qbf9qmHB5SDAiUauhyBI9kGNE0EQRCdemuPUlj6iA54/a92e20m14XBMWsIkn9eU6pblA9cy33nbZ010W2dC7DfxmmE5y2ijz5GEcwiCWIh3BKcIHbRUWwoeg2dIMWz1rru+iSXkazNjnOCN2xUQWIPZTl+/Y8JAf/4AAAHQSURBVENz86FYn4mkPnN4t1foKz4YZWVfEASxDzTVEQRBdOIlU/1b1Vc64MnQysh97FkiwzZKy8xz1e5ocBjdu2nfPlK2J3pTzfPWEflLwQen29kvBEGswe2CM62AS7TDPFL2q4k8wgnGmMo2Ssfz9WiZ93zwy/37SdkuJipmjTxuCW30wVkOdRFBEAOgqY4gCKITL5nqB1lJNcZYO9w/oCbyJGtT85o7Zp6roXWd5/wtB1rb4vGppH7vyQWLwQdnZ6O/CIJkxkuCkwrDWDvcScoBNZE/c6a82jZK16TT1WK2P9nwTRRo58Up95/cK2m2CzRQMgYtRhAXgaY6giCITjyz5TLa5p9FKsev3v4J186vzcyqI0gLWs32pxoOfuMHYQqp/+akgltc0n0EQRiocSIIgujE7cnaJMHOZ5bkMz3yIeGy7gjSAxsfyMbI16XXE0ZihiIIYh9eWccpcsKDF5zS6641z9VQMdv58SqNE4UlgrgANNURBEF04lpTHTqbs4JKeI+UJuZ105WNVW28vGZNQVMdQbKHlwIZqwqKriBE2DpP6amoIjhTxzraOQRBOoGmOoIgiE5cbaofy3DTFClQ00QQd4CCE0EQRA8A8P8AgJhAN1Ei9AAAAABJRU5ErkJggg==" class="logo-content" alt="Logo">
+        </div>
+        <div class="" style="width: 50%">
+            <div class="" style="display: flex; justify-content: space-around;font-weight: bold; font-size: 40px">SHOE BEE</div>
+            <div class="" style="margin-top: 30px;display: flex; justify-content: center">
+                <p th:text="${'Mã hóa đơn: '+ invoice.code}"></p>
+                <p style="margin-left: 30px" th:text="${ invoice.date}"></p>
+                <img style="position: absolute;top: 1px;right: 1px; width: 90px; height: 90px" th:src="${invoice.qr}" alt="QR Code">
+            </div>
+        </div>
+    </div>
+    <div class=""
+         style="margin-top: 20px; display: flex; justify-content: space-around;padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="" style="width: 50%;">
+            <div class="" style="margin-right: 20px;">
+                <p>Từ</p>
+                <p>Shoe Bee Seanker </p>
+                <p>Chương trình Phổ thông Cao đẳng FPT Polytechnic, Phương Canh, Từ Liêm, Hà Nội, Việt Nam</p>
+                <p>0338957590</p>
+            </div>
+        </div>
+        <div class="" style="width: 50%;">
+            <div class="" style="margin-left: 20px; ">
+                <p>Đến</p>
+                <p th:text="${invoice.userName}"></p>
+                <p th:text="${invoice.address}"></p>
+                <p th:text="${invoice.phoneNumber}"></p>
+            </div>
+        </div>
+    </div>
+    <div style="padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="" style="margin-right: 20px;">
+            <p  style="font-size: 18px; font-weight: 800; margin-bottom: 30px">Nội dung đơn hàng <span style="font-size: 16px; font-width: 500;" th:text="${'( Tổng số lượng sản phẩm '+invoice.quantity + ' )'}"></span></p>
+            <table class="table table-condensed" style="width: 100%">
+                <thead>
+                </thead>
+                <tbody>
+                <th:block th:each="item,index : ${invoice.items}">
+                    <tr>
+                        <td th:text="${index.index  + 1}">d</td>
+                        <td th:text="${item.name}">d</td>
+                        <td class="text-center" th:text="${'SL: '+ item.quantity}">1</td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div style="display: flex; justify-content: space-around;padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="" style="width: 50%;">
+            <div class="" style="margin-right: 20px;">
+                <div class="">
+                    Tiền thu người nhận:
+                </div>
+                <div class="" style="font-size: 31px;
+           font-weight: bolder; margin-top: 10px;margin-left: 8%;" >
+                    <p class="" th:if="${invoice.method == true}" >
+                        <span th:text="${(invoice.totalTraSau)}"></span>
+                    </p>
+                    <p class="" th:if="${invoice.method == false}" >
+                        <span> 0 đ</span>
+                    </p>
+                </div>
+                <div class="" style="margin-top: 30px" th:text="${'Ghi chú: '+((invoice.note == null || invoice.note == '') ? '' : invoice.note)}"></div>
+            </div>
+        </div>
+        <div class="" style="width: 50%;">
+            <div class="" style="margin-right: 20px; display: flex; justify-content: space-around;">
+                <div style="margin:20px; border: 2px solid #ccc; width:100%">
+                    <div style="margin: 10px;">
+                        <div class="" style="font-size: 21px;
+                    font-weight: bolder; margin-top: 10px;text-align: center;"> chữ ký người nhận</div>
+                        <p style="text-align: center; font-size: 12px" >Xác nhận hàng nguyên vẹn, không móp/méo</p>
+                        <div style="height: 150px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="" th:if="${!invoice.typeBill}">
+    <div class="" style="display: flex; justify-content: center;">
+        <div class="" style="">
+            <div class="" style="display: flex; justify-content: center;font-weight: bold; font-size: 40px">SHOE BEE</div>
+            <div class="" style="margin-top: 19px; text-align: center">
+                <p>Chương trình Phổ thông Cao đẳng FPT Polytechnic, Phương Canh, Từ Liêm, Hà Nội, Việt Nam</p>
+            </div>
+            <div class="" style="margin-top: 5px; text-align: center">
+                <p>SDT: 0338957590</p>
+            </div>
+            <div class="" style="margin-top: 10px; display: flex; justify-content: center">
+                <p th:text="${'Mã hóa đơn: '+ invoice.code}"></p>
+                <p style="margin-left: 30px" th:text="${ invoice.date}"></p>
+                <img style="position: absolute;top: 1px;right: 1px; width: 90px; height: 90px" th:src="${invoice.qr}" alt="QR Code"> <!-- Thay thế URL_CUA_QR_CODE bằng URL thực tế của QR code -->
+            </div>
+        </div>
+    </div>
+    <div class=""
+         style="padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="">
+            <div class="" style="margin-left: 20px; ">
+                <p th:text="${'Khách hàng: ' + ((invoice.userName == null || invoice.userName == '') ? 'Khách lẻ' : invoice.userName)}"></p>
+                <p th:text="${'Số điện thoại: '+((invoice.phoneNumber == null || invoice.phoneNumber == '') ? '' : invoice.phoneNumber )}"></p>
+                <p th:text="${'Địa chỉ: '+ ((invoice.address == null || invoice.address == '') ? '--' :  invoice.address)}"></p>
+            </div>
+        </div>
+    </div>
+    <div style="padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="" style="margin-right: 20px;">
+            <p style="font-size: 18px; font-weight: 800; margin-bottom: 30px">Nội dung đơn hàng <span
+                    style="font-size: 16px; font-width: 500;"
+                    th:text="${'( Tổng số lượng sản phẩm '+invoice.quantity + ' )'}"></span></p>
+            <table class="table " style="width: 100%">
+                <thead>
+                <td class="th"><strong>Stt</strong></td>
+                <td class="th"><strong>Tên</strong></td>
+                <td class="th"><strong>Giá</strong></td>
+                <td class="th"><strong>Số lương</strong></td>
+                <td class="th"><strong>Trạng thái</strong></td>
+                <td class="th"><strong>Tổng</strong></td>
+                </thead>
+                <tbody>
+                <th:block th:each="item,index : ${invoice.items}">
+                    <tr>
+                        <td class="td" th:text="${index.index  + 1}">BS-200</td>
+                        <td class="td" th:text="${item.name}">BS-200</td>
+                        <td class="td" >
+                            <span th:if="item.priceBeforePromotion == null" style="font-size:12px ;margin-top: 2px">
+                            <del th:text="${item.priceBeforePromotion }">
+                            </del>
+                            </span>
+                            <span th:text="${item.priceVn }">
+                            </span>
+                        </td>
+                        <td class="td" th:text="${item.quantity }">1</td>
+                        <td class="td" th:text="${item.status }">1</td>
+                        <td class="td" th:text="${item.sum}">$10.99</td>
+                    </tr>
+                </th:block>
+                </tbody>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td class="thick-line" ></td>
+                        <td class="thick-line"></td>
+                        <td class="thick-line " style="font-size: 16px; font-weight: 500"><strong th:if="${!invoice.checkBillTra}">Tổng Tiền hàng:</strong>
+                            <strong th:if="${invoice.checkBillTra}">Tổng Tiền hàng mua:</strong></td>
+                        <td class="thick-line text-end" float="right" style="font-size: 18px; font-weight: 600" th:text="${invoice.totalMoney}"></td>
+                    </tr>
+                    <tr>
+                        <td class="border-0"></td>
+                        <td class="nborder-0"></td>
+                        <td class="border-0 " style="font-size: 16px; font-weight: 500"><strong>Giảm giá:</strong></td>
+                        <td class="border-0no-line text-end" float="right" style="font-size: 18px; font-weight: 600" th:text="${invoice.itemDiscount}">ádsadasd</td>
+                    </tr>
+                    <tr th:if="${invoice.checkShip}">
+                        <td class="border-0"></td>
+                        <td class="border-0"></td>
+                        <td class="border-0 " style="font-size: 16px; font-weight: 500"><strong>Phí ship:</strong></td>
+                        <td class="border-0  text-end" float="right" style="font-size: 18px; font-weight: 600" th:text="${(invoice.ship)}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="border-0"></td>
+                        <td class="border-0"></td>
+                        <td class="border-0 " style="font-size: 16px; font-weight: 500"><strong>Tổng hóa đơn:</strong></td>
+                        <td class="border-0  text-end" float="right" style="font-size: 18px; font-weight: 600" th:text="${(invoice.totalBill)}">
+                        </td>
+                    </tr>
+                    <tr style="margin-top: 5px">
+                        <td class="border-0"></td>
+                        <td class="border-0 " colspan="3"><strong style="font-weight: 500; font-size: 16px " th:text="${'Tổng số lượng sản phẩm: '+invoice.quantity + ' '}"></strong></td>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </table>
+        </div>
+    </div>
+    <div  style="padding: 20px 10px;border-top-style: dashed; border-width: 1px; border-color: rgb(0, 0, 0);">
+        <div class="" style="margin-right: 20px; margin-bottom: 50px" th:if="${!invoice.checkBillTra}">
+            <table class="table table-condensed" style="width: 100%">
+                <thead>
+                </thead>
+                <tbody>
+                <th:block th:each="item,idex : ${invoice.paymentsMethodRequests}">
+                    <tr>
+                        <td th:text="${idex.index  + 1}"></td>
+                        <td class="text-center" th:text="${item.method}"></td>
+                        <td th:text="${item.total}" float="right"></td>
+                        <td class="text-center" th:text="${item.status}"></td>
+                        <td class="text-center" float="right" th:text="${item.vnp_TransactionNo}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+        <div class="" style="display: flex; justify-content: space-between" >
+            <table class="table table-condensed" style="width: 100%">
+                <thead>
+                </thead>
+                <tbody th:if="${!invoice.checkBillTra}">
+                    <tr>
+                        <td  float="right">Tổng thanh toán:</td>
+                        <td class="text-center" float="right" th:text="${invoice.totalPayment}"></td>
+                    </tr>
+                    <tr>
+                        <td  float="right">Tiền Thối lại:</td>
+                        <td class="text-center" float="right" th:text="${invoice.change}"></td>
+                    </tr>
+                </tbody>
+                <tbody th:if="${invoice.checkBillTra}">
+                <tr>
+                    <td  float="right">Tổng tiền trả:</td>
+                    <td class="text-center" float="right" th:text="${invoice.change}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

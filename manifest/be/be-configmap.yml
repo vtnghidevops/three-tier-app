@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beeshoes-be-application-properties-configmap
+  namespace: beeshoes
+data:
+  application.properties: |
+    # database
+    spring.datasource.url=${DB_URL}
+    spring.datasource.username=${DB_USERNAME}
+    spring.datasource.password=${DB_PASSWORD}
+    spring.datasource.driverClassName=org.mariadb.jdbc.Driver
+    spring.datasource.sql-script-encoding=UTF-8
+    spring.jpa.properties.hibernate.globally_quoted_i/dentifiers=true
+    spring.jpa.hibernate.ddl-auto=none 
+    spring.jpa.show-sql=true
+
+    # cloudinaryroperties.hibernate.format_sql=true
+    cloudinary.cloud-name=${CLOUDINARY_NAME}
+    cloudinary.api-key=${CLOUDINARY_API_KEY}
+    cloudinary.api-secret=${CLOUDINARY_API_SECRET}
+    spring.servlet.multipart.max-file-size=10MB
+    spring.servlet.multipart.max-request-size=10MB
+
+
+    # emailservlet.multipart.max-request-size=10MB
+    spring.mail.host=${MAIL_HOST}
+    spring.mail.port=${MAIL_PORT}
+    spring.mail.username=${MAIL_USERNAME}
+    spring.mail.password=${MAIL_PASSWORD}
+    spring.mail.properties.mail.transport.protocol=TLSv1.2
+    spring.mail.properties.mail.smtp.port=25
+    spring.mail.properties.mail.smtp.auth=true
+    spring.mail.properties.mail.smtp.starttls.enable=true
+    spring.mail.properties.mail.smtp.starttls.required=true
+    spring.mail.properties.mail.smtp.ssl.trust=smtp.gmail.com
+
+    # config
+    domain.client=${CLIENT_DOMAIN}
+    spring.jpa.properties.hibernate.jdbc.time_zone=Asia/Ho_Chi_Minh
+
+    # excel
+    jxls.template.path= classpath:jxls/
+    jxls.template.output.path= classpath:output/
+    spring.jpa.properties.hibernate.jdbc.batch_size=2000
+    spring.jpa.properties.hibernate.order_inserts=true 
+

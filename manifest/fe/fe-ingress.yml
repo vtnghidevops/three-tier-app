@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: beeshoes-fe-ingress
+  namespace: beeshoes
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: beeshoes.deploy.io.vn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: beeshoes-fe-service
+                port:
+                  number: 80

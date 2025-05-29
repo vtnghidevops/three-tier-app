@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beeshoes-be-deployment
+  namespace: beeshoes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beeshoes-be
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: beeshoes-be
+    spec:
+      containers:
+        - name: beeshoes-be
+          image: harbor.deploy.io.vn/beeshoes/beeshoes-backend:v1
+          ports:
+            - containerPort: 8080
+              name: tcp
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 250m
+              memory: 500Mi
+            limits:
+              cpu: 500m
+              memory: 1000Mi
+          envFrom:
+            - secretRef:
+                name: beeshoes-be-secret
+          volumeMounts:
+            - name: beeshoes-be-application-properties-config-volume
+              mountPath: /run/src/main/resources/application.properties
+              subPath: application.properties
+      volumes:
+        - name: beeshoes-be-application-properties-config-volume
+          configMap:
+            defaultMode: 420 # rw-
+            name: beeshoes-be-application-properties-configmap
+      imagePullSecrets:
+        - name: harbor-secret

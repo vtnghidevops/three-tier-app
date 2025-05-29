@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: beeshoes-db
+  namespace: beeshoes
+spec:
+  serviceName: beeshoes-db-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beeshoes-db
+  template:
+    metadata:
+      labels:
+        app: beeshoes-db
+    spec:
+      containers:
+      - name: beeshoes-db
+        image: bitnami/mariadb:11.4.7
+        ports:
+        - containerPort: 3306
+          name: tcp
+          protocol: TCP
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: beeshoes-db-secret
+              key: DB_ROOT_PASSWORD
+        - name: MARIADB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: beeshoes-db-secret
+              key: DB_INIT_DATABASE
+        - name: MARIADB_USER
+          valueFrom:
+            secretKeyRef:
+              name: beeshoes-db-secret
+              key: DB_USERNAME
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: beeshoes-db-secret
+              key: DB_PASSWORD
+        - name: MARIADB_EXTRA_FLAGS
+          value: --bind-address=0.0.0.0
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/bitnami/mariadb/bin/mysqladmin ping -h localhost -u beeshoes -p"$MARIADB_PASSWORD"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/bitnami/mariadb/bin/mysqladmin ping -h localhost -u beeshoes -p"$MARIADB_PASSWORD"
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 250m
+            memory: 500Mi
+          limits:
+            cpu: 500m
+            memory: 1000Mi
+        volumeMounts:
+        - name: beeshoes-db-volume
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: beeshoes-db-volume
+        persistentVolumeClaim:
+          claimName: beeshoes-db-pvc

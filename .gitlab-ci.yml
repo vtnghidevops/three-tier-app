@@ -172,7 +172,7 @@ detect-changed-folders:
   #when: manual
 
 
-# Stage 2: Prepare docker build
+  # Stage 2: Prepare docker build
 generate-build-stage:
   stage: prepare-docker-build
   extends:
@@ -216,7 +216,7 @@ generate-build-stage:
           - docker build -t \${IMAGE} ${DIR}
           - echo "Pushing image to registry"
           - docker push \${IMAGE}
-    EOF
+      EOF
     done
   artifacts:
     paths:

@@ -218,7 +218,7 @@ detect-changed-folders:
 #         - echo "IMAGE \${IMAGE}"
 #         - docker build -t \${IMAGE} ./${DIR}
 #         - echo "Pushing image to registry"
-#         - docker push ${IMAGE}
+#         - docker push \${IMAGE}
 #     EOF
 #     done
 #   artifacts:
@@ -285,9 +285,8 @@ gitleaks-secret-scan:
         "!(${BEESHOES_FRONTEND_DIR}/**)"  # Allow only beeshoes-frontend
       ]
     EOF
-    ls -l .gitleaks.toml && pwd || echo "Error: .gitleaks.toml not found"
-    # Combine scan results into a single HTML file
-    echo "GitLeaks Scan Report>" > "$REPORT_FILENAME"
+    LOCATION_TOML_FILE=$(pwd)/.gitleaks.toml && ls -l $LOCATION_TOML_FILE || echo "Error: .gitleaks.toml not found"
+    
     for DIR in $DIRS; do
       if [[ "$DIR" != "${BEESHOES_BACKEND_DIR}" && "$DIR" != "${BEESHOES_FRONTEND_DIR}" ]]; then
         echo "Skipping $DIR: Only ${BEESHOES_BACKEND_DIR} and ${BEESHOES_FRONTEND_DIR} are supported"
@@ -300,7 +299,7 @@ gitleaks-secret-scan:
         echo "Results for $DIR" >> "$REPORT_FILENAME"
         gitleaks detect --source="$DIR" \
           --no-git \ 
-          --config-path=~/.gitleaks.toml \  
+          --config-path=$LOCATION_TOML_FILE \  
           --report-format=template \
           --report-template=basic.tmpl \
           --verbose \
@@ -309,7 +308,7 @@ gitleaks-secret-scan:
           echo "Secrets detected in $DIR! Generating JSON report..."
           gitleaks detect --source="$DIR" \
             --no-git \
-            --config-path=.gitleaks.toml \
+            --config-path=$LOCATION_TOML_FILE \
             --report-path="${JSON_REPORT}.${DIR}" \
             --report-format=json
           cat "${JSON_REPORT}.${DIR}"
@@ -503,7 +502,7 @@ trivy-image-security-scan:
     GIT_STRATEGY: none
   before_script:
   - apk add --no-cache curl
-  - curl -sSL https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.55.0_Linux-64bit.tar.gz | tar -xz -C /usr/local/bin trivy
+  - curl -sSL https://github.com/aquasecurity/trivy/releases/download/v0.62.1/trivy_0.62.1_FreeBSD-64bit.tar.gz | tar -xz -C /usr/local/bin trivy
   - echo "$HARBOR_PASSWD" | docker login $HARBOR_URL -u 'robot$'"$HARBOR_USERNAME" --password-stdin
   script:
   - !reference [ .load-changed-dirs ]

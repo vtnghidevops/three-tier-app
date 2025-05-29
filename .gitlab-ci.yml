@@ -214,11 +214,11 @@ generate-build-stage:
         - ls -ltra
         - ls -l ${DIR}/ || echo "Directory ${DIR} not found"
         - echo "Building ${DIR} image"
-        - IMAGE=\${HARBOR_URL}/\${HARBOR_REPO}/\${DIR}:\${CI_COMMIT_TAG}-\${CI_COMMIT_SHORT_SHA}
-        - echo "IMAGE \${IMAGE}"
-        - docker build -t \${IMAGE} ./${DIR}
+        - IMAGE=${HARBOR_URL}/${HARBOR_REPO}/${DIR}:${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}
+        - echo "IMAGE: ${IMAGE}"
+        - docker build -t ${IMAGE} ./${DIR}
         - echo "Pushing image to registry"
-        - docker push \${IMAGE}
+        - docker push ${IMAGE}
     EOF
     done
   artifacts:

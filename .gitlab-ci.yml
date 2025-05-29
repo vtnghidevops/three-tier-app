@@ -89,7 +89,7 @@ variables:
   rules:
   - if: $PRECHECK_APPROVED == "true"
     when: always
-  - when: never
+  - when: manual
 
 .rules-for-sonar-be:
   rules:
@@ -576,7 +576,6 @@ generate-sbom-files:
   stage: push-artifacts
   extends:
   - .docker-job-template
-  - .rules-for-precheck-manual-gate
   needs:
   - job: detect-changed-folders
     artifacts: true
@@ -605,12 +604,13 @@ generate-sbom-files:
     paths:
     - sbom-files
     expire_in: 1 day
+  when: manual
+  tags:
+  - devops-k8s-runner
 
 upload_to_minio:
   image: ${MINIO_IMAGE}
   stage: push-artifacts
-  extends:
-  - .rules-for-precheck-manual-gate
   needs:
   - job: generate-sbom-files
     artifacts: true
@@ -649,11 +649,10 @@ upload_to_minio:
     expire_in: 1 day
   tags:
   - devops-k8s-runner
+  when: manual
 
 update-images-tag:
   stage: update-helm-chart
-  extends:
-  - .rules-for-precheck-manual-gate
   needs:
   - job: detect-changed-folders
     artifacts: true
@@ -686,3 +685,4 @@ update-images-tag:
     git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git main
   tags:
   - devops-k8s-runner
+  when: manual

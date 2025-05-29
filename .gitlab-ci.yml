@@ -231,7 +231,8 @@ trigger-docker-build:
   stage: build-docker-image
   # extends: .default-develop-rules
   variables:
-    GIT_STRATEGY: none
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0
   trigger:
     strategy: depend
     include:

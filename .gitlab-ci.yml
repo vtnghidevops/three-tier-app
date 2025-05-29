@@ -166,8 +166,9 @@ detect-changed-folders:
     - changed_dirs.txt
     expire_in: 1 day
   tags:
-  - devops-shell-runner
-  only: tags
+    - devops-shell-runner
+  only: 
+    - tags
   #when: manual
 
 

@@ -1,0 +1,13 @@
+
+/* Hiệu ứng hover */
+button.selected:hover {
+    background-color: #1890ff; /* Đặt màu nền khi hover */
+    color: #fff; /* Đặt màu chữ khi hover */
+  }
+  
+  /* Hiệu ứng khi nút button được chọn */
+  button.selected {
+    background-color: #1890ff; /* Đặt màu nền khi được chọn */
+    color: #fff; /* Đặt màu chữ khi được chọn */
+  }
+  

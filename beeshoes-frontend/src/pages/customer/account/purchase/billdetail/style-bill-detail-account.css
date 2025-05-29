@@ -1,0 +1,66 @@
+.bill-detail-account-header {
+  border-bottom: 1px solid rgb(224, 224, 224);
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 20px;
+  margin-bottom: 30px;
+}
+.box-code-bill-account {
+  margin-left: auto;
+  margin-right: 20px;
+}
+.box-status-bill-account {
+  margin-left: 20px;
+  color: #ff4400;
+}
+
+.box-address-bill-account {
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 30px;
+}
+.phone-bill-account {
+  color: rgb(117, 117, 117);
+}
+.box-payment-bill-account {
+  padding: 30px;
+  border-bottom: 1px solid rgb(224, 224, 224);
+}
+.line-payment-bill-account {
+  display: flex;
+  text-decoration: none;
+  margin-bottom: 5px;
+  align-items: center;
+}
+.text-payment-bill-account {
+  margin-right: 30px;
+  text-align: right;
+  margin-left: auto;
+  width: 200px;
+  font-size: 17px;
+  color: #969696;
+}
+.value-payment-bill-account {
+  width: 200px;
+}
+.text-total-bill-account {
+  margin-right: 30px;
+  text-align: right;
+  margin-left: auto;
+  width: 200px;
+  font-size: 17px;
+  color: #000000;
+}
+.value-total-bill-account {
+  width: 200px;
+  font-size: 20px;
+  color: #ff4400;
+}
+.payment-method-bill-account {
+  padding: 30px;
+  display: flex;
+  align-items: center;
+}
+.scrollbar-container.ps.ps--active-x {
+    overflow-x: auto;
+}

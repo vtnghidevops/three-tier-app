@@ -1,0 +1,129 @@
+.title_account {
+  font-size: 25px;
+  font-weight: 500;
+}
+.title_add {
+  padding: 15px;
+}
+.content-wrapper-ac {
+  margin-left: 6%;
+  margin-top: 30px;
+}
+.content-wrapper-ac Input {
+  height: 40px;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.age {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.slider-input {
+  width: 200px;
+}
+
+.search-container {
+  align-items: center;
+  gap: 10px;
+}
+.date-label,
+.age-label {
+  margin-right: 10px;
+}
+.box_btn_filter {
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.account-table > div {
+  align-items: center;
+  margin-bottom: 10px;
+}
+.trangthai-sd {
+  border: 1px solid green;
+  background-color: lightgreen;
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.trangthai-ksd {
+  border: 1px solid rgb(230, 13, 13);
+  background-color: rgb(243, 87, 87);
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+.title_add Input {
+  height: 40px;
+}
+/* .image-preview
+  .ant-upload-wrapper.ant-upload-picture-circle-wrapper
+  .ant-upload-wrapper.ant-upload-picture-circle-wrapper
+  .ant-upload.ant-upload-select {
+  width: 250px;
+  height: 250px;
+}
+.image-preview
+  :where(
+    .css-dev-only-do-not-override-19gw05y
+  ).ant-upload-wrapper.ant-upload-picture-card-wrapper
+  .ant-upload-list.ant-upload-list-picture-card
+  .ant-upload-list-item-container,
+:where(
+    .css-dev-only-do-not-override-19gw05y
+  ).ant-upload-wrapper.ant-upload-picture-circle-wrapper
+  .ant-upload-list.ant-upload-list-picture-card
+  .ant-upload-list-item-container,
+:where(
+    .css-dev-only-do-not-override-19gw05y
+  ).ant-upload-wrapper.ant-upload-picture-card-wrapper
+  .ant-upload-list.ant-upload-list-picture-circle
+  .ant-upload-list-item-container,
+:where(
+    .css-dev-only-do-not-override-19gw05y
+  ).ant-upload-wrapper.ant-upload-picture-circle-wrapper
+  .ant-upload-list.ant-upload-list-picture-circle
+  .ant-upload-list-item-container {
+  display: inline-block;
+  width: 250px;
+  height: 250px;
+  margin-block: 0 8px;
+  margin-inline: 0 8px;
+  vertical-align: top;
+} */
+.form-inputs {
+  width: 50%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.input-container {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 20px;
+  height: 750px;
+  background-color: white;
+  width: 650px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 20px;
+}

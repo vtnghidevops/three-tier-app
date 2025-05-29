@@ -1,0 +1,22 @@
+.ant-tabs-nav-list  .ant-tabs-tab-remove{
+    display: none;
+}
+
+p {
+    margin: 2px;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.th, .td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+.th {
+    background-color: #ccc;
+}

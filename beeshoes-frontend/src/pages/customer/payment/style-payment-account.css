@@ -1,0 +1,228 @@
+.payment-acc {
+  background-color: rgb(245, 245, 245);
+  padding-bottom: 100px;
+}
+
+.address-payment {
+  width: 100%;
+  background-color: white;
+  padding: 30px;
+  margin-bottom: 20px;
+}
+
+.border-top-address {
+  margin-top: 20px;
+  height: 3px;
+  width: 100%;
+  background-position-x: -30px;
+  background-size: 116px 3px;
+  background-image: repeating-linear-gradient(45deg,
+      #020202,
+      #bdc3c9 42px,
+      transparent 0,
+      transparent 41px,
+      #d8bcb2 0,
+      #ff4400 74px,
+      transparent 0,
+      transparent 82px);
+}
+
+.title-address-recieve-good {
+  margin-bottom: 20px;
+}
+
+.icon-address-payment-acc {
+  color: #ff4400;
+  font-size: 20px;
+}
+
+.status-default {
+  color: #ff4400;
+  border: #ff4400 1px solid;
+  padding: 2px;
+  margin-left: 20px;
+  font-size: 15px;
+  border-radius: 5px;
+  
+}
+
+.change-address-payment {
+  cursor: pointer;
+  color: blue;
+  margin-left: 40px;
+  font-size: 15px;
+}
+
+.add-address-payment {
+  cursor: pointer;
+  color: blue;
+  margin-left: 15px;
+  font-size: 15px;
+}
+
+.product-of-bill-acc {
+  margin-bottom: 20px;
+  background-color: white;
+  padding: 20px 50px;
+}
+
+.title-product-of-bill-acc {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.content-product-of-bill-acc {
+  background-color: white;
+}
+
+.item-product-bill-acc {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: rgb(241, 241, 241) 1px solid;
+  padding-bottom: 10px;
+}
+
+.img-product-bill-acc {
+  width: 100px;
+  height: 80px;
+  border-radius: 20px;
+}
+
+.total-money-before {
+  margin-left: 30px;
+  font-size: 20px;
+  color: #ff4400;
+}
+
+.voucher-payment-acc {
+  background-color: white;
+  padding: 30px;
+  /* display: flex; */
+  margin-bottom: 30px;
+}
+
+.money-reduce-payment-acc {
+  margin-left: auto;
+  border: #ff4400 1px solid;
+  padding: 5px;
+  color: #ff4400;
+  border-radius: 5px;
+}
+
+.money-reduce-coin-acc {
+  margin-left: auto;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.footer-payment-acc {
+  background-color: white;
+}
+
+.method-payment-acc {
+  display: flex;
+  /* background-color: white; */
+  padding: 30px;
+  align-items: center;
+  border-bottom: rgb(241, 241, 241) 1px solid;
+}
+
+.payment-when-recevie-acc {
+  width: 250px;
+  height: 50px;
+  border: #ccc3c3 1px solid;
+  margin-right: 20px;
+  margin-left: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.payment-by-vnpay-acc {
+  width: 250px;
+  height: 50px;
+  border: #ccc3c3 1px solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 10px;
+
+}
+
+.payment-by-vnpay-acc.click {
+  border: 1px solid #ff4400;
+  color: #ff4400;
+}
+
+.payment-when-recevie-acc.click {
+  border: 1px solid #ff4400;
+  color: #ff4400;
+}
+
+.time-recieve-goods {
+  border-bottom: rgb(241, 241, 241) 1px solid;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.titles-money-payment-acc {
+  padding: 30px;
+  padding-left: 60%;
+  border-bottom: rgb(241, 241, 241) 1px solid;
+}
+
+.box-title-money {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
+
+.title-money {
+  margin-right: auto;
+  font-size: 18px;
+  color: #535759;
+}
+
+.text-money {
+  margin-left: auto;
+}
+
+.text-money-total {
+  margin-left: auto;
+  color: #ff4400;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.form-submit-payment-acc {
+  padding: 30px;
+}
+
+.button-submit-buy-acc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  padding: 20px;
+  color: white;
+  font-size: 20px;
+  background-color: #ff4400;
+  margin-left: auto;
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.status-default-address {
+  color: #ff4400;
+  border: #ff4400 1px solid;
+  padding: 5px;
+  font-size: 13px;
+}

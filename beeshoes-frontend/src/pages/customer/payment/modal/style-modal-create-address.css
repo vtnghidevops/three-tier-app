@@ -1,0 +1,63 @@
+:where(.css-dev-only-do-not-override-1m62vyb).ant-modal .ant-modal-content {
+  border-radius: 0px;
+}
+.input-create-address-account {
+  border: 1px solid rgb(201, 201, 201);
+  height: 45px;
+  width: 270px;
+  padding: 10px;
+  &:focus{
+    border: 1px solid black;
+  }
+}
+.select-create-address-address {
+  border: 1px solid rgb(201, 201, 201);
+  height: 45px;
+  width: 177px;
+  padding: 10px;
+  &:focus{
+    border: 1px solid black;
+  }
+}
+.input-line-create-address-account {
+  border: 1px solid rgb(201, 201, 201);
+  height: 50px;
+  width: 552px;
+  padding: 10px;
+  &:focus{
+    border: 1px solid black;
+  }
+}
+.box-action-create-address-account {
+  display: flex;
+}
+.buuton-cancel-create-address-account {
+  width: 70px;
+  height: 35px;
+  background-color: rgb(255, 255, 255);
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgb(236, 235, 235);
+  }
+}
+.buuton-create-address-account {
+  width: 70px;
+  height: 35px;
+  background-color: #ff4400;
+  margin-left: 10px;
+  margin-right: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.9;
+  }
+}

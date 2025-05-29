@@ -1,0 +1,32 @@
+*{
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+.dashboard-customer{
+  width:100%;
+}
+.header-menu {
+  height: 60px;
+  background-color: #f0f0f0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+/* Để menu ẩn đi khi cuộn lên trên, sử dụng thuộc tính transform để dịch chuyển menu xuống ngoài khung nhìn */
+/* và sử dụng opacity để làm mờ menu */
+.header-menu.hidden {
+  transform: translateY(-150%);
+  opacity: 0;
+}
+
+/* Để menu hiện lên khi cuộn xuống, sử dụng thuộc tính transform để đưa menu trở lại vị trí ban đầu */
+/* và sử dụng opacity để hiển thị menu */
+.header-menu.visible {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 1s, opacity 1s;
+}

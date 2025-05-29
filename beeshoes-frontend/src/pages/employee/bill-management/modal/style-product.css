@@ -1,0 +1,205 @@
+.title_product {
+    font-size: 25px;
+    font-weight: 500;
+  }
+  
+  .filter {
+    margin-top: 15px;
+    background-color: rgb(255, 255, 255);
+    width: 99%;
+    height: auto;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .content {
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    justify-content: center;
+  }
+  
+  .content-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .content-left,
+  .content-right {
+    width: 50%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .box_btn_filter {
+    text-align: center;
+    padding-bottom: 10px;
+  }
+  
+  .btn_filter {
+    background-color: rgb(35, 145, 214);
+    color: white;
+    margin-right: 5px;
+  }
+  
+  .btn_filter:hover {
+    background-color: rgb(16, 132, 205);
+    color: white !important;
+    margin-right: 5px;
+  }
+  
+  .btn_clear {
+    background-color: rgb(248, 73, 73);
+    color: white;
+    margin-right: 5px;
+  }
+  
+  .btn_clear:hover {
+    background-color: rgb(243, 37, 37);
+    color: white !important;
+    margin-right: 5px;
+  }
+    
+  .product-table {
+    margin-top: 30px;
+    background-color: rgb(255, 255, 255);
+    width: 99%;
+    height: auto;
+    border-radius: 5px;
+    padding: 10px;
+  }
+   
+  .product-table > div {
+      align-items: center;
+      margin-bottom: 10px;
+  }
+  .trangthai-sd {
+    border: 1px solid green;
+    background-color: lightgreen;
+    border-radius: 20px;
+    width: 130px;
+    height: 30px;
+    pointer-events: none;
+  }
+  
+  .trangthai-ksd {
+    border: 1px solid rgb(230, 13, 13);
+    background-color: rgb(243, 87, 87);
+    border-radius: 20px;
+    width: 130px;
+    height: 30px;
+    pointer-events: none;
+  }
+  
+
+  
+  .form-input {
+    width: 1000px;
+    height: 40px;
+  }
+  
+  .form-textarea {
+    width: 1000px;
+    margin-left: 50px;
+  }
+  
+  .form-submit-btn {
+    width: 10%;
+    height: 40px;
+    margin-top: 35px;
+    margin-left: 90%;
+    font-weight: bold
+  }
+
+  .size-table {
+    margin-top: 30px;
+    background-color: rgb(255, 255, 255);
+    width: 70%;
+    height: auto;
+    border-radius: 10px;
+    padding: 10px;
+    margin-left: 15%;
+  
+  }
+   
+  .size-table > div {
+      align-items: center;
+      margin-bottom: 10px;
+  }
+  /* .ant-upload-list-item-container{
+    width: 290px !important;
+    height: 290px !important;
+  } */
+  .ant-select-selector{
+    height: 40px !important;
+  }
+  .custom-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1; /* Make sure the button is on top of the image */
+  }
+  
+  .uploaded-file-container {
+    position: relative; /* Make sure the button and image are positioned relative to this container */
+  }
+  
+  .ant-upload-list-picture-card .ant-upload-list-item {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .ant-upload-list-picture-card .ant-upload-list-item-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .ant-upload-list-picture-card .ant-upload-list-item-thumbnail {
+    width: 80px;
+    height: 80px;
+  }
+  /* Custom CSS for the buttons */
+.primary-btn {
+  background-color: blue;
+  color: white;
+  width: 100px;
+  border-radius: 15px;
+}
+
+.danger-btn {
+  background-color: red;
+  color: white;
+  width: 100px;
+  border-radius: 15px;
+}
+
+.default-btn {
+  background-color: gray;
+  color: black;
+  width: 100px;
+  border-radius: 15px;
+}
+
+.selected{
+  border: 2px solid #00ffd4;
+  color: white;
+}
+
+
+::-webkit-scrollbar {
+  width: 4px;
+  border: 2px solid #d5d5d5;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0;
+  background: #eeeeee;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: #b0b0b0;
+}
+  

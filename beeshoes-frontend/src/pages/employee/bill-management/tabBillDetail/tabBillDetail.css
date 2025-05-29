@@ -1,0 +1,8 @@
+
+.tab-bill-detail:where(.css-1m62vyb).ant-table-wrapper {
+    width: 100%;
+}
+
+.table-bill-detail:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper {
+    width: 100%;
+}

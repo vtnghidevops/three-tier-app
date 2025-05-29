@@ -1,0 +1,257 @@
+.title_bill {
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.filter {
+  margin-top: 15px;
+  background-color: rgb(255, 255, 255);
+  width: 99%;
+  height: auto;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.content {
+  display: flex;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  justify-content: center;
+}
+
+.content-wrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.content-left,
+.content-right {
+  width: 50%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.box_btn_filter {
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.btn_filter {
+  background-color: rgb(35, 145, 214);
+  color: white;
+  margin-right: 5px;
+}
+
+.btn_filter:hover {
+  background-color: rgb(16, 132, 205);
+  color: white !important;
+  margin-right: 5px;
+}
+
+.btn_clear {
+  background-color: rgb(248, 73, 73);
+  color: white;
+  margin-right: 5px;
+}
+
+.btn_clear:hover {
+  background-color: rgb(243, 37, 37);
+  color: white !important;
+  margin-right: 5px;
+}
+  
+.bill-table {
+  margin-top: 30px;
+  background-color: rgb(255, 255, 255);
+  width: 99%;
+  height: auto;
+  border-radius: 5px;
+  padding: 10px;
+}
+ 
+.bill-table > div {
+    align-items: center;
+    margin-bottom: 10px;
+}
+.trangthai-sd {
+  border: 1px solid green;
+  background-color: lightgreen;
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.trangthai-ksd {
+  border: 1px solid rgb(230, 13, 13);
+  background-color: rgb(243, 87, 87);
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.trangThai{
+  border: none;
+  /* border-radius: 0px; */
+  /* background-color: red; */
+  color: white;
+  width: 100px;
+  border-radius: 15px;
+  height: 2pc;
+
+}
+.status_TAO_HOA_DON{
+  background-color: rgb(104, 234, 203);
+}
+.status_CHO_XAC_NHAN{
+  background-color: rgb(104, 234, 180);
+}
+.status_VAN_CHUYEN{
+  background-color: rgb(104, 234, 171);
+}
+.status_DA_THANH_TOAN{
+  background-color: rgb(0, 239, 88);
+}
+.status_TRA_HANG{
+  background-color: rgb(1, 240, 88);
+}
+.status_KHONG_TRA_HANG{
+  background-color: rgb(10, 255, 34);
+}
+.status_DA_HUY{
+  background-color: rgb(240, 1, 1);
+}
+  
+.form-control{
+  display: block;
+  width: 95%;
+  padding: 0.375rem 0.75rem;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 0.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0.25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.form-select {
+  display: block;
+  width: 95%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  -moz-padding-start: calc(0.75rem - 3px);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #212529;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-select:focus, input:focus{
+  outline: none;
+}
+
+.text{
+  margin: 5px 0 6px 0;
+  font-size: 15px;
+}
+
+.selectOption{
+  color: rgb(170 167 167 / 78%);
+  font-size: 14px;
+}
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 15px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 15px;
+}
+
+input[type=checkbox]{
+	height: 0;
+	width: 0;
+	visibility: hidden;
+}
+
+.labelSwitch {
+	cursor: pointer;
+	text-indent: -9999px;
+	width: 70px;
+	height: 30px;
+	background: grey;
+	display: block;
+	border-radius: 100px;
+	position: relative;
+}
+
+.labelSwitch:after {
+	content: '';
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 20px;
+	height: 20px;
+	background: #fff;
+	border-radius: 90px;
+	transition: 0.3s;
+}
+
+input:checked + .labelSwitch {
+	background: #bada55;
+}
+
+input:checked + .labelSwitch:after {
+	left: calc(100% - 5px);
+	transform: translateX(-100%);
+}
+
+.labelSwitch:active:after {
+	width: 70px;
+}
+.ant-select-selection-overflow{
+  width: 98%;
+  max-width: 98%;
+  overflow: hidden;
+  display: block;
+  white-space: nowrap;
+}
+:where(.css-dev-only-do-not-override-1m62vyb).ant-select-multiple .ant-select-selection-overflow {
+  position: relative;
+  display: block;
+  flex: auto;
+  flex-wrap: wrap;
+  max-width: 100%;
+}

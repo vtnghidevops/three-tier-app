@@ -1,0 +1,31 @@
+.header-payment-success{
+    width: 100%;
+    height: 70px;
+    border-bottom: rgb(222, 222, 222) 1px solid;
+    display: flex;
+    align-items: center;
+}
+.logo-payment-success{
+    height: 60px;
+   margin-left: 20%;
+}
+.content-payment-success{
+    margin-top: 10%;
+    width:400px;
+   padding:20px;
+    border-radius: 5px;
+    justify-content: center;
+    text-align:center;
+    align-items: center;
+}
+.icon-payment-success{
+    color: green;
+    font-size:60px;
+    margin-bottom: 30px;
+}
+.icon-payment-fail{
+    color: #ff0000;
+    font-size:60px;
+    margin-bottom: 30px;
+}
+

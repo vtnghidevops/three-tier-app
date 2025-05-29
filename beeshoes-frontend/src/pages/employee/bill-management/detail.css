@@ -1,0 +1,135 @@
+/* 
+:where(.css-dev-only-do-not-override-1m62vyb).ant-modal .widthModal .ant-modal-content {
+    position: relative;
+    background-color: #ffffff;
+    background-clip: padding-box;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    pointer-events: auto;
+    padding: 20px 24px;
+    width: 880px;
+
+} */
+
+.trangThai{
+    border: none;
+    /* border-radius: 0px; */
+    /* background-color: red; */
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+    pointer-events: none;
+    /* margin-left: 10px */
+  
+  }
+  .status_TAO_HOA_DON{
+    background-color: #3399FF;
+  }
+  .status_CHO_XAC_NHAN{
+    background-color : #3399FF;
+  }
+.status_XAC_NHAN{
+    background-color : #3399FF;
+  }
+  .status_CHO_VAN_CHUYEN {
+    background-color: #3399FF;
+  }
+  .status_VAN_CHUYEN{
+    background-color: #3399FF;
+  }
+  .status_THANH_CONG {
+    background-color: #3399FF;
+  }
+  .status_DA_THANH_TOAN{
+    background-color: #3399FF;
+  }
+  .status_TRA_HANG{
+    background-color: #3399FF;
+  }
+  .status_KHONG_TRA_HANG{
+    background-color: #3399FF;
+  }
+  .status_DA_HUY{
+    background-color: #FF0000;
+  }
+
+  .THANH_TOAN{
+    background-color: rgb(10, 145, 255);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+  .HOAN_TIEN{
+    background-color: rgb(255, 83, 10);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+    
+  .TIEN_MAT{
+    background-color: rgb(10, 145, 255);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+  .TIEN_MAT{
+    background-color: rgb(34, 255, 10);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+  .CHUYEN_KHOAN{
+    background-color: rgb(24, 249, 58);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+  .THE{
+    background-color: rgb(169, 245, 142);
+    color: white;
+    width: 180px;
+    border-radius: 15px;
+    height: 2pc;
+    padding:  5px 19px;
+  }
+
+  .label-bill {
+    position: absolute;
+    z-index: 100;
+    background-color: white;
+    padding: 0 1px;
+    font-size: 12px;
+    top: -13% ;
+    margin-left: 10px;
+   }
+
+  .refundProduct  {
+ 
+    width: 800px !important;
+}
+
+.TRA_SAU{
+  background-color: #FF0000;
+  color: white;
+  width: 180px;
+  border-radius: 15px;
+  height: 2pc;
+  padding:  5px 19px;
+}
+.title-product{
+  font-size: 16px;
+  font-weight: bold;
+}

@@ -1,0 +1,105 @@
+.App {
+  position: relative;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-logo img {
+  width: 30px; /* Độ rộng của logo */
+  height: 30px; /* Chiều cao của logo */
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.button-on-top {
+  width: 40px;
+  height: 40px;
+  position: fixed;
+  right: 2%;
+  bottom: 5%;
+  z-index: 100;
+  border: 1px solid #ff4400;
+  background-color: #ff4400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.button-on-top::before {
+  content: "";
+  position: fixed;
+  height: 2px;
+  width: 35px;
+  background-color: #dfdfdf;
+  bottom: 4%;
+  /* opacity: 0.3; */
+  border-radius: 100%;
+  box-shadow: 0px 1px 7px #383737;
+}
+:where(.css-dev-only-do-not-override-1m62vyb).ant-pagination .ant-pagination-item-active {
+  border-color: #ff4400;
+}
+:where(.css-dev-only-do-not-override-1m62vyb).ant-pagination .ant-pagination-item-active a {
+  color: #ff4400;
+}
+:where(.css-dev-only-do-not-override-1m62vyb).ant-pagination .ant-pagination-prev button, :where(.css-dev-only-do-not-override-1m62vyb).ant-pagination .ant-pagination-next button {
+  color: #ff4400;
+}
+:where(.css-dev-only-do-not-override-1m62vyb).ant-pagination .ant-pagination-item a {
+  color: #ff4400;
+}

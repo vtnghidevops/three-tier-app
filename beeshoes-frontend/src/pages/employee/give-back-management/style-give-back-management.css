@@ -1,0 +1,17 @@
+
+.search-bill{
+   position: relative;
+   margin-top: 5%;
+}
+.contaier-give-back{
+    position: relative;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHEHj89D2GM30uY1Yd_aDqQjwwwsFz8Fk0fw&usqp=CAU'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-size: 40% ; 
+}
+
+.table-bill-give-back > :where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-tbody>tr>td{
+ padding: 3px !important;
+}

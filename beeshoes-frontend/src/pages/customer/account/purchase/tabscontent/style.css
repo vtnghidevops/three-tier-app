@@ -1,0 +1,87 @@
+.box-bill-account {
+    border: 1px solid #dedede;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+}
+
+.header-bill-account {
+    height: 30px;
+    border-bottom: 1px solid #cccccc;
+    display: flex;
+    align-items: center
+}
+
+.content-bill-account {
+    border-bottom: 1px solid #cccccc;
+    padding: 10px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.box-image-bill-account {
+    width: 25%;
+}
+
+.box-detail-product-bill-account {
+    width: 45%;
+}
+
+.box-total-bill-account {
+    width: 40%;
+}
+
+.name-product-bill-account {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.size-product-bill-account {
+    color: #6b6666;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/*.footer-bill-account{*/
+/*    text-align: left;*/
+/*}*/
+.box-total-money-bill-account {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.box-repurchase {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    cursor: pointer;
+}
+
+.repurchase {
+    width: 150px;
+    height: 40px;
+    background-color: #ff4400;
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 5px;
+}
+
+.see-purchase {
+    width: 150px;
+    height: 40px;
+    border: 1px solid gray;
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 5px;
+}

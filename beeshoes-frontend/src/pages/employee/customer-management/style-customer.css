@@ -1,0 +1,188 @@
+.title_account {
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.title_add {
+  padding: 15px;
+}
+
+.filter {
+  margin-top: 15px;
+  background-color: rgb(255, 255, 255);
+  width: 99%;
+  height: auto;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.add {
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+}
+
+.content_ac {
+  padding-top: 25px;
+  padding-bottom: 20px;
+  justify-content: center;
+}
+
+.content-wrapper-ac {
+  padding-bottom: 20px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.age {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.slider-input {
+  width: 200px;
+}
+
+.search-container {
+  align-items: center;
+  gap: 10px;
+}
+
+.date-label,
+.age-label {
+  margin-right: 10px;
+}
+
+.box_btn_filter {
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.btn_filter {
+  background-color: rgb(35, 145, 214);
+  color: white;
+  margin-right: 5px;
+}
+
+.btn_filter:hover {
+  background-color: rgb(16, 132, 205);
+  color: white !important;
+  margin-right: 5px;
+}
+
+.btn_clear {
+  background-color: rgb(248, 73, 73);
+  color: white;
+  margin-right: 5px;
+}
+
+.btn_clear:hover {
+  background-color: rgb(243, 37, 37);
+  color: white !important;
+  margin-right: 5px;
+}
+
+.account-table {
+  margin-top: 30px;
+  background-color: rgb(255, 255, 255);
+  width: 99%;
+  height: auto;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.account-table>div {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.trangthai-sd {
+  border: 1px solid green;
+  background-color: lightgreen;
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.trangthai-ksd {
+  border: 1px solid rgb(230, 13, 13);
+  background-color: rgb(243, 87, 87);
+  border-radius: 20px;
+  width: 130px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.title_add Input {
+  height: 40px;
+}
+
+.input-item {
+  height: 40px;
+}
+
+.ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload.ant-upload-select {
+  width: 240px;
+  height: 240px;
+}
+
+.ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item {
+  width: 240px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  margin-right: 300px;
+}
+
+:where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload-list.ant-upload-list-picture-card .ant-upload-list-item-container,
+:where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-card .ant-upload-list-item-container,
+:where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item-container,
+:where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item-container .ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload.ant-upload-select {
+  /* width: 230%; */
+  /* height: 180px; */
+}
+
+.ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item {
+  width: 225%;
+  height: 235px;
+  /* display: flex;
+  justify-content: center;
+  margin: 0 auto; */
+}
+
+/* :where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload-list.ant-upload-list-picture-card .ant-upload-list-item-container, :where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-card .ant-upload-list-item-container, :where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item-container, :where(.css-dev-only-do-not-override-1m62vyb).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload-list.ant-upload-list-picture-circle .ant-upload-list-item-container {
+  display: inline-block;
+  height: 102px;
+  margin-block: 0 8px;
+  margin-inline: 0 8px;
+  vertical-align: top;
+  margin-right: 137px;
+}  */
+
+.DIEM_THUONG {
+  background-color: rgb(124, 245, 11);
+  border-radius: 15px;
+}
+.DIEM_SU_DUNG{
+  background-color: rgb(245, 241, 11);
+  border-radius: 15px;
+}
+.DIEM_HOAN{
+  background-color: rgb(245, 97, 11);
+  border-radius: 15px;
+}

@@ -1,0 +1,181 @@
+.login-account{
+    height: 100vh;
+
+}
+.header-login{
+    width: 100%;
+    height: 10%;
+    border-bottom: 5px solid #ff4400;
+    display:flex;
+    align-items:center;
+}
+.logo-login{
+    margin-left:20%;
+    width:120px;
+}
+.box-content-login{
+    width: 100%;
+    height: 90%;
+    display: grid;
+    place-items: center;
+}
+
+.box-form-login{
+    width: 800px;
+    height: 500px;
+    background-color: rgb(255, 255, 255);
+    margin: auto;
+    border-radius: 10px;
+    text-align: center;
+   display: flex;
+   position: relative;
+   padding: 20px 0;
+   /* border: 1px solid rgb(238, 235, 235); */
+}
+.form-login{
+    width: 50%;
+    height: 100%;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    
+}
+.form-login-with-social{
+    width: 50%;
+    height: 100%;
+    border-left: 1px solid rgb(197, 193, 193);
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    background-color: rgb(236, 236, 236);
+}
+.or{
+    position: absolute;
+    background-color: rgb(247, 247, 247);
+    right: 47.5%;
+    bottom: 45%;
+    border-radius: 40px;
+    width: 40px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    color: grey;
+}
+.login-facebook{
+    width: 350px;
+    height: 60px;
+    background-color: #4721d1;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    border-radius: 10px;
+}
+.login-google{
+    width: 350px;
+    height: 60px;
+    background-color: #e65e24;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 10px;
+    font-size: 20px;
+}
+.input-username{
+    width: 350px;
+    height: 50px;
+}
+.input-password{
+    width: 350px;
+    height: 50px;
+    
+}
+.input-username:focus{
+    border-color: #ff4400;
+}
+/* placeholder-show */
+.input-username:not(:placeholder-shown) + .title-username,
+.input-username:focus + .title-username{
+   top:0;
+   padding: 0 10px;
+   display: inline-block;
+   background-color: white;
+   color: #ff4400;
+   left: 12px;
+}
+.input-password:focus{
+    border-color: #ff4400;
+}
+/* placeholder-show */
+.input-password:not(:placeholder-shown) + .title-password,
+.input-password:focus + .title-password{
+    top:0;
+    padding: 0 10px;
+    display: inline-block;
+    background-color: white;
+    color: #ff4400;
+    left: 12px;
+ }
+.title-username{
+position: absolute;
+top: 50%;
+left: 12px;
+transform: translateY(-50%);
+color: rgb(188, 184, 179);
+user-select: none;
+pointer-events: none;
+transition: 0.3 ease;
+}
+.title-password{
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: rgb(188, 184, 179);
+    user-select: none;
+    pointer-events: none;
+    transition: 0.3 ease;
+}
+
+
+.icon-show-password{
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+.box-submit-login{
+    width: 350px;
+    height: 50px;
+    background-color: #ed7e56;
+    margin-top: 10px;
+    color: white;
+    font-size: 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover{
+        background-color: #ff4400;
+    }
+}
+.box-forgot-pass{
+    width: 350px;
+    height: 30px;
+    display: flex;
+    margin-top: 10px;
+}
+.forgot-pass{
+    margin-right: auto;
+    text-decoration: none;
+    color: blue;
+}
+.register{
+    color: #ff4400;
+    text-decoration: none;
+}

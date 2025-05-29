@@ -1,0 +1,323 @@
+::selection {
+  background-color: #ff4400; /* Màu nền khi bôi đen */
+  color: rgb(255, 255, 255); /* Màu chữ khi bôi đen */
+}
+.img-banner-home-shoes {
+  width: 500px;
+  animation: slideFromRight 2s ease-in-out;
+  float: right;
+  margin-top: 180px;
+  margin-right: 270px;
+}
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.banner {
+  margin-bottom: 100px;
+  width: 100%;
+  height: 800px;
+}
+.img-banner-home {
+  width: 100%;
+  height: 100%;
+  background-image: url("./../../../assets/images/third_slider_bg.jpg");
+  background-size: cover;
+  background-position: center;
+  /* animation: fadeIn 1s ease-in-out; */
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.img-choose-gender {
+  height: 90%;
+  width: 100%;
+}
+.type-gender {
+  position: relative;
+  height: 100%;
+}
+.type-gender-1 {
+  width: 100%;
+  background-image: url("./../../../assets/images/shoes_cat_img01.jpg");
+  height: 80%;
+  transition: transform 0.2s ease;
+  padding-left: 10%;
+  padding-top: 40%;
+  border-radius: 5px;
+}
+.type-gender-1:hover {
+  transform: scale(1.05);
+}
+.type-gender-2 {
+  position: relative;
+  height: 100%;
+  transition: transform 0.2s ease;
+  
+}
+.type-gender-2:hover {
+  transform: scale(1.05);
+}
+.type-gender-3 {
+  width: 100%;
+  background-image: url("./../../../assets/images/shoes_cat_img03.jpg");
+  height: 80%;
+  background-size: cover;
+  transition: transform 0.2s ease;
+  padding-left: 10%;
+  padding-top: 40%;
+  border-radius: 5px;
+
+}
+.type-gender-3:hover {
+  transform: scale(1.05);
+}
+.button-choose-gender {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: cursive;
+  background-color: white;
+  border-radius: 0px;
+  width: 30%;
+  height: 50%;
+  color: black;
+}
+.button-choose-gender:hover {
+  color: rgb(220, 85, 45);
+  box-shadow: 1px 1px 5px 1px #ff5900;
+}
+.type-gender {
+  transition: transform 0.2s ease;
+}
+.col-choose {
+  margin-bottom: 35px;
+}
+
+.type-gender:hover {
+  transform: scale(1.05);
+}
+
+.horizontal-line {
+  border-bottom: 2px solid #ebe5e5;
+  width: 90px;
+  margin: 10px 0;
+  margin-left: 40%;
+}
+.text-product-center {
+  display: flex;
+}
+.text-product {
+  width: 150px;
+  margin-top: 20px;
+  font-family: cursive;
+  font-size: 16px;
+  color: #6b6666;
+}
+.quantity-product-home {
+  color: #978f8f;
+  margin-top: 24px;
+  margin-left: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+.search-category {
+  text-align: center;
+  margin-top: 100px;
+  width: 100%;
+  background-color: #fcf8f8;
+  padding-bottom: 100px;
+  margin-bottom: 100px;
+  padding-top: 100px;
+  max-width: 100%;
+}
+.content-search-category {
+  max-width: 100%;
+  height: 470px;
+  display: flex;
+  margin: 40px 40px;
+}
+.title-product-category {
+  text-align: center;
+  position: relative;
+  font-size: 25px;
+  padding-bottom: 10px;
+  font-weight: 600;
+  color: #312620;
+  width: 100%;
+  font-family: "Jost", sans-serif;
+  margin-bottom: 50px;
+}
+
+.title-product-category::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px; /* Chiều dài của border */
+  height: 1px; /* Độ dày của border */
+  background-color: #ec4f0c;
+}
+.title-category-home {
+  background-color: white;
+  width: 320px;
+  height: 100%;
+  border: 0.1px solid #f9f5f5;
+}
+.list-product-of-category {
+  display: flex;
+  width: 1161px;
+  height: 100%;
+  padding-left: 20px;
+  align-items: center;
+}
+.text-category {
+  margin-top: 20px;
+  font-size: 25px;
+  margin-bottom: 50px;
+  font-weight: 800;
+}
+.item-category:hover {
+  color: #ff4400;
+}
+.custom-tab {
+  font-size: 20px;
+  font-weight: 600;
+  color: black;
+}
+.title-tabs-product {
+  display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+  grid-template-columns: repeat(5, 1fr); /* 4 CardItem trong một hàng */
+}
+.ant-tabs-content-holder {
+  margin-top: 20px;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Ẩn thanh cuộn trên Chrome và Safari */
+}
+
+/* mobile: width < 740px */
+@media only screen and (max-width: 46.1875em) {
+  .banner {
+    margin-bottom: 100px;
+    width: 100%;
+    height: 400px;
+  }
+  .img-banner-home-shoes {
+    width: 150px;
+    animation: slideFromRight 2s ease-in-out;
+    margin-top: 100px;
+    margin-right: 70px;
+  }
+  .type-gender-1 {
+    width: 500px;
+    height: 300px;
+    animation: slideFromRight 2s ease-in-out;
+    margin-bottom: 100px;
+  }
+  .type-gender-2 {
+    animation: slideFromRight 2s ease-in-out;
+  }
+  .type-gender-3 {
+    width: 500px;
+    height: 300px;
+    animation: slideFromRight 2s ease-in-out;
+    margin-top: 30px;
+  }
+  .choose-gender {
+    height: 190px;
+    width: 100%;
+  }
+  .button-choose-gender {
+    font-family: cursive;
+    border: 1px white solid;
+    background-color: white;
+    border-radius: 0px;
+    width: 30%;
+    height: 50%;
+    color: black;
+  }
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(1, 1fr); /* 4 CardItem trong một hàng */
+    grid-gap: 10px; /* Khoảng cách giữa các CardItem */
+    justify-content: space-between;
+  }
+}
+/* tablet: min-width >= 740px  and  max-width < 1024px*/
+@media only screen and (min-width: 46.25em) and (max-width: 63.9375em) {
+  .banner {
+    margin-bottom: 100px;
+    width: 100%;
+    height: 600px;
+  }
+  .img-banner-home-shoes {
+    width: 300px;
+    animation: slideFromRight 2s ease-in-out;
+    float: right;
+  }
+  .type-gender-1 {
+    width: 500px;
+    height: 300px;
+    animation: slideFromRight 2s ease-in-out;
+    margin-bottom: 100px;
+  }
+  .type-gender-2 {
+    animation: slideFromRight 2s ease-in-out;
+  }
+  .type-gender-3 {
+    width: 500px;
+    height: 300px;
+    animation: slideFromRight 2s ease-in-out;
+    margin-top: 30px;
+  }
+  .choose-gender {
+    height: 300px;
+    width: 100%;
+  }
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(4, 0.1fr); /* 4 CardItem trong một hàng */
+    grid-gap: 0px; /* Khoảng cách giữa các CardItem */
+    justify-content: space-between;
+  }
+}
+
+
+/* respon list product */
+/* mobile: width < 1450px */
+@media only screen and (min-width: 1161px) and (max-width: 90.625em) {
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(4, 1fr); /* 4 CardItem trong một hàng */
+  }
+}
+@media only screen and (max-width: 1160px) {
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(3, 1fr); /* 4 CardItem trong một hàng */
+  }
+}
+@media only screen and (max-width: 870px) {
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(2, 1fr); /* 4 CardItem trong một hàng */
+  }
+}
+@media only screen and (max-width: 580px) {
+  .title-tabs-product {
+    display: grid; /* Sử dụng CSS Grid để quản lý bố trí */
+    grid-template-columns: repeat(1, 1fr); /* 4 CardItem trong một hàng */
+  }
+}

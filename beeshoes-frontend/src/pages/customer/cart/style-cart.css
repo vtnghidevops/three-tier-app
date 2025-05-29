@@ -1,0 +1,502 @@
+.cart {
+  padding-bottom: 100px;
+  background-color: #f7f7f7;
+}
+.img-shoe {
+  width: 200px;
+  animation: slideFromRight 1.5s ease-in-out;
+  float: right;
+  margin-top: 50px;
+  margin-right: 400px;
+}
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.text-welcome {
+  bottom: 10%;
+  width: 400px;
+  animation: slideFromRight 1.5s ease-in-out;
+  float: right;
+  margin-top: 70px;
+  margin-right: 400px;
+}
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.img-banner {
+  width: 100%;
+  height: 300px;
+  background-image: url("./../../../assets/images/h7_slider_bg02.jpg");
+  animation: fadeIn 1s ease-in-out;
+  margin-bottom: 100px;
+  /* display:flex */
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.title-cart {
+  text-align: center;
+  position: relative;
+  font-size: 25px;
+  padding-bottom: 20px;
+  font-weight: 600;
+  color: #312620;
+  width: 100%;
+  font-family: "Jost", sans-serif;
+  margin-bottom: 30px;
+}
+
+.title-cart::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px; /* Chiều dài của border */
+  height: 0.1px; /* Độ dày của border */
+  background-color: #ff4400;
+}
+.content-cart{
+  padding-top: 50px;
+}
+.form-content-cart {
+  width: 100%;
+  display: flex;
+  margin-top: 10px;
+}
+.info-cart {
+  width: 65%;
+}
+.box-title-cart{
+  height: 30px;
+  display: flex;
+  padding: 20px 30px;
+  align-items: center;
+  margin-top: 60px;
+  margin-bottom:30px;
+  background-color:white;
+  border: 1px solid #ebebeb
+}
+.bill-of-cart {
+  width: 400px;
+  margin-left: 3%;
+  margin-top: 60px;
+  /* margin-left: auto; */
+  padding: 9px;
+  height: 520px;
+}
+.content-bill-of-cart {
+  background-color: #f1f1f1;
+  padding: 20px;
+  height: 500px;
+  border: 1px solid rgb(230, 230, 230);
+}
+.text-bill-in-cart {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  border-bottom: 2px solid black;
+  font-size: 25px;
+  font-weight: 700;
+}
+.cart-is-empty {
+  width: 100%;
+  height: 520px;
+  background-color: #fcfafa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("https://bizweb.dktcdn.net/100/414/833/themes/803358/assets/empty-cart.png?1698141402395");
+  background-position: center; 
+  background-repeat: no-repeat; 
+  background-size: 70%;
+  /* border: #7c7876 1px dotted; */
+}
+.item-cart {
+  display: flex;
+  height: 230px;
+  padding: 30px;
+  border-bottom: dotted 1px rgb(195, 166, 156);
+  background-color: #ffffff;
+  margin-bottom: 20px;
+}
+.item-cart.last-item {
+  border-bottom: 2px solid rgb(115, 108, 108);
+}
+.cart-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+.cart-price {
+  color: #7c7876;
+  font-size: 16px;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  margin-top: 10px;
+}
+.info-product-detail {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.form-change-quantity {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+.button-minus-quantity {
+  padding: 5px;
+  cursor: pointer;
+}
+.quantity-product-in-cart {
+  width: 60px;
+  margin: 0 10px;
+  text-align: center;
+}
+.button-plus-quantity {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.form-status-cart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  align-items: center;
+}
+.button-delete-cart {
+  background-color: rgb(255, 255, 255);
+  width: 130px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+.icon-button-delete-cart {
+  color: rgb(249, 3, 3);
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.box-cart-img {
+  display: flex;
+  align-items: center;
+  width: 30%;
+}
+.button-delete-all-cart {
+  width: 200px;
+  height: 40px;
+  background-color: #303030;
+  color: white;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+.button-continue-to-buy {
+  width: 200px;
+  height: 40px;
+  background-color: #303030;
+  color: white;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.input-quantity-cart {
+  height: 30px;
+  width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 7px;
+  border-radius: 7px;
+}
+.select-size-cart {
+  margin-top: 7px;
+  border-radius: 0px;
+  border: #ede8e8 1px solid;
+  height: 50px;
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.list-size-of-cart {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+/* .item-size-of-cart:focus,
+.item-size-of-cart:active, */
+.item-size-of-cart.clicked {
+  border: 1px solid rgb(0, 0, 0);
+  outline: none;
+}
+.item-size-of-cart {
+  width: 50px;
+  height: 30px;
+  border: #e2dcd9 1px solid;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+}
+
+.hidden-text {
+  opacity: 0.1;
+}
+.cart-text {
+  z-index: 2; /* Đè lên chữ bee sneaker */
+}
+
+.hidden-text {
+  position: absolute;
+  width: 170px;
+  height: 70px;
+  opacity: 0.05; /* Đặt giá trị opacity tùy ý */
+  top: 30%; /* Đặt vị trí theo ý muốn */
+  left: 50%; /* Đặt vị trí theo ý muốn */
+  transform: translate(-50%, -50%); /* Để căn giữa theo chiều ngang và dọc */
+  z-index: 1; /* Giữ mức độ dưới chữ Giỏ Hàng */
+}
+.custom-checkbox-all {
+  border-color: #ff4400;
+  border-radius: "20px";
+}
+.span.ant-checkbox-inner {
+  border-color: #ff4400;
+}
+.custom-checkbox-all .ant-checkbox-inner {
+  background-color: rgb(255, 255, 255);
+  border-color: #ff4400;
+  border-radius: 0;
+}
+
+.custom-checkbox-all .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #ed7347;
+  border-color: #ff4400;
+  border-radius: "20px";
+}
+
+/* Định dạng checkbox tùy chỉnh */
+.custom-checkbox {
+  border-color: #ff4400;
+}
+.custom-checkbox .ant-checkbox-inner {
+  background-color: rgb(255, 255, 255);
+  border-color: #ff4400;
+  border-radius: 0;
+}
+
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #ed7347;
+  border-color: #ff4400;
+}
+
+.voucher-of-cart {
+  padding: 30px 20px;
+  border-bottom: 1px dotted rgb(195, 166, 156);
+}
+.voucher-of-cart-acc {
+  padding: 30px 20px;
+  border-bottom: 1px dotted rgb(195, 166, 156);
+  display: flex;
+}
+.button-add-voucher-cart {
+  background-color: #ff4400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 3px;
+}
+.value-bill-of-cart {
+  border-bottom: 1px dotted rgb(195, 166, 156);
+  padding: 20px;
+}
+.value-bill-of-cart.acc {
+  border-bottom: 1px dotted rgb(195, 166, 156);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+.button-pay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ff4400;
+  width: 100%;
+  height: 70px;
+  color: white;
+  font-size: 20px;
+  margin-top: 30px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.button-pay:hover {
+  background-color: #252323;
+  color: #eff2f5;
+}
+.content-code-voucher-cart {
+  width: 100%;
+  padding: 10px;
+  background-color: #f9f7f7;
+  display: flex;
+  align-items: center;
+  margin-top: 5%;
+  margin-bottom: 10%;
+}
+.input-code-voucher-cart {
+  width: 65%;
+  height: 40px;
+  padding-left: 10px;
+  border: #e4dedb 1px solid;
+  margin-left: 5px;
+}
+.input-code-voucher-cart:focus {
+  border-color: #242629; /* Đổi màu đường viền khi focus */
+}
+.input-code-voucher-cart:focus .button-submit-voucher-cart {
+  border-color: #242629; /* Đổi màu đường viền khi focus */
+}
+.button-submit-voucher-cart {
+  border: #f2eeed 1px solid;
+  padding: 8px;
+  margin-left: 15px;
+  color: #d1c9c6;
+  cursor: not-allowed;
+}
+.button-submit-voucher-cart.show {
+  border: #726a69 1px solid;
+  color: #7b7572;
+  cursor: pointer;
+}
+.category-voucher {
+  border-bottom: #e2dcd9 1px solid;
+}
+.voucher-list {
+  max-height: 350px; /* Đặt chiều cao tối đa cho danh sách */
+  overflow-y: auto; /* Hiển thị thanh cuộn dọc khi danh sách quá cao */
+}
+.item-voucher {
+  width: 100%;
+  height: 120px;
+  border: #e2dcd9 1px solid;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5%;
+  margin-top: 20px;
+}
+.item-voucher.hidden {
+  width: 100%;
+  height: 120px;
+  border: #e2dcd9 1px solid;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5%;
+  margin-top: 20px;
+  background-color: #dfdfdf;
+  cursor: not-allowed;
+}
+.img-voucher-cart {
+  margin-left: 5%;
+  width: 150px;
+  height: 70px;
+}
+.button-cancel-voucher-cart {
+  width: 120px;
+  height: 40px;
+  margin-top: 20px;
+  margin-left: auto;
+  background-color: #ffffff;
+  color: #7b7572;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: #e2dcd9 1px solid;
+  cursor: pointer;
+}
+.button-ok-voucher-cart {
+  width: 120px;
+  height: 40px;
+  margin-top: 20px;
+  margin-left: 10px;
+  background-color: #ff4400;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 46.1875em) {
+  .form-content-cart {
+    flex-direction: column;
+  }
+  .info-cart {
+    width: 500px;
+  }
+  .bill-of-cart {
+    width: 500px;
+  }
+}
+/* tablet: min-width >= 740px  and  max-width < 1024px*/
+@media only screen and (min-width: 46.25em) and (max-width: 63.9375em) {
+  .form-content-cart {
+    flex-direction: column;
+  }
+  .info-cart {
+    width: 768px;
+  }
+  .bill-of-cart {
+    width: 768px;
+  }
+  .img-shoe {
+    width: 150px;
+    animation: slideFromRight 1.5s ease-in-out;
+    float: right;
+    margin-top: 50px;
+    margin-right: 100px;
+  }
+  .text-welcome {
+    bottom: 10%;
+    width: 300px;
+    animation: slideFromRight 1.5s ease-in-out;
+    float: right;
+    margin-top: 70px;
+    margin-right: 100px;
+  }
+}
+
+.red-icon {
+  color: rgb(226, 12, 12);
+}

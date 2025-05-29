@@ -1,0 +1,57 @@
+.loading {
+    width: 124px;
+    height: 124px;
+}
+
+.loading svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.circle {
+    transform: rotate(-90deg);
+    transform-origin: center;
+    stroke-dasharray: 380;
+    stroke-dashoffset: 380;
+    animation: circle_4 2s ease-in-out forwards;
+}
+
+.check {
+    stroke-dasharray: 45;
+    stroke-dashoffset: 45;
+    animation: check_4 0.2s 2s ease-in-out forwards;
+}
+
+@keyframes circle_4 {
+    0% {
+        stroke-dashoffset: 380;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes check_4 {
+    0% {
+        stroke-dashoffset: 45;
+    }
+
+    100% {
+        stroke-dashoffset: 90;
+    }
+}
+
+.textColor {
+    margin: 20px;
+    font-size: 19px;
+    font-weight: 400;
+}
+
+.textGradient {
+    font-size: 72px;
+    background: linear-gradient(115deg,#76b8ff 22.45%,#f086f2 45%,#fac37b 73%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

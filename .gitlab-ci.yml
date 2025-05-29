@@ -285,19 +285,23 @@ gitleaks-secret-scan:
         echo "Scanning directory: $DIR"
         echo "Directory $DIR contents:"
         ls -ltra "$DIR/"
-        echo "Results for $DIR" >> "$REPORT_FILENAME"
+        
+        # Run GitLeaks scan with template output
         gitleaks detect --source="$DIR" \
           --no-git \
           --report-format=template \
           --report-template=basic.tmpl \
-          --verbose \
-          --append-report="$REPORT_FILENAME" || SCAN_STATUS=$?
-        if [ "${SCAN_STATUS:-0}" -ne 0 ]; then
-          echo "Secrets detected in $DIR! Generating JSON report..."
-          gitleaks detect --source="$DIR" \
-            --no-git \
-            --report-path="${JSON_REPORT}.${DIR}" \
-            --report-format=json
+          --report-path="${REPORT_FILENAME}.${DIR}" \
+          --verbose || SCAN_STATUS=$?
+
+        # Run GitLeaks scan with JSON output
+        gitleaks detect --source="$DIR" \
+          --no-git \
+          --report-path="${JSON_REPORT}.${DIR}" \
+          --report-format=json || JSON_STATUS=$?
+
+        if [ "${SCAN_STATUS:-0}" -ne 0 ] || [ "${JSON_STATUS:-0}" -ne 0 ]; then
+          echo "Secrets detected in $DIR!"
           cat "${JSON_REPORT}.${DIR}"
           SCAN_EXIT_CODE=1
         else
@@ -307,6 +311,13 @@ gitleaks-secret-scan:
         echo "Directory $DIR does not exist, skipping"
       fi
     done
+
+    # Combine all HTML reports if they exist
+    if ls "${REPORT_FILENAME}".* 1> /dev/null 2>&1; then
+      cat "${REPORT_FILENAME}".* > "${REPORT_FILENAME}"
+      rm "${REPORT_FILENAME}".*
+    fi
+
     if [ "$SCAN_EXIT_CODE" -ne 0 ]; then
       echo "Secrets detected in at least one directory! Check reports in ${GITLEAKS_FOLDER}"
       exit 1

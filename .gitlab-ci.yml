@@ -195,7 +195,7 @@ generate-build-stage:
     fi
 
     echo "Generating child pipeline"
-    DIRS=$(cat changed_dirs.env)
+    DIRS=$(cat changed_dirs.txt)
     for DIR in $DIRS; do
       cat <<EOF >> docker-build-pipeline.yml
     Build ${DIR} image:

@@ -166,13 +166,13 @@ detect-changed-folders:
     - changed_dirs.txt
     expire_in: 1 day
   tags:
-    - devops-shell-runner
-  only: 
-    - tags
+  - devops-shell-runner
+  only:
+  - tags
   #when: manual
 
 
-# Stage 2: Prepare docker build
+  # Stage 2: Prepare docker build
 generate-build-stage:
   stage: prepare-docker-build
   extends:
@@ -224,7 +224,7 @@ generate-build-stage:
     - docker-build-pipeline.yml
     expire_in: 1 day
   only:
-    - tags
+  - tags
 
 # Stage 3: Build docker image
 trigger-docker-build:
@@ -241,7 +241,7 @@ trigger-docker-build:
   - job: generate-build-stage
     artifacts: true
   only:
-    - tags
+  - tags
 
 # Stage 4: Security scan
 gitleaks-secret-scan:
@@ -252,76 +252,76 @@ gitleaks-secret-scan:
     GIT_STRATEGY: clone
     GIT_DEPTH: 1
   before_script:
-    - apk add --no-cache curl
-    - curl -s -o basic.tmpl https://raw.githubusercontent.com/gitleaks/gitleaks/master/report_templates/basic.tmpl
+  - apk add --no-cache curl
+  - curl -s -o basic.tmpl https://raw.githubusercontent.com/gitleaks/gitleaks/master/report_templates/basic.tmpl
   script:
-    - !reference [ .load-changed-dirs ]
-    - |
-      echo "=== Scanning for secrets with GitLeaks ==="
-      if [ -z "$DIRS" ]; then
-        echo "No directories to scan with GitLeaks"
-        exit 0
+  - !reference [ .load-changed-dirs ]
+  - |
+    echo "=== Scanning for secrets with GitLeaks ==="
+    if [ -z "$DIRS" ]; then
+      echo "No directories to scan with GitLeaks"
+      exit 0
+    fi
+
+    echo "Directories to scan: [$DIRS]"
+    git checkout "$CI_COMMIT_SHA"
+    mkdir -p ${GITLEAKS_FOLDER}
+    SCAN_EXIT_CODE=0
+    REPORT_FILENAME="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+    JSON_REPORT="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.json"
+
+    # Create .gitleaks.toml to restrict scan scope
+    cat <<EOF > .gitleaks.toml
+      [allowlist]
+      paths = [
+        "manifest/**",  # Exclude manifest directory
+        "!(beeshoes-backend/**)",  # Allow only beeshoes-backend
+        "!(beeshoes-frontend/**)"  # Allow only beeshoes-frontend
+      ]
+    EOF
+
+    # Combine scan results into a single HTML file
+    echo "<html><body><h1>GitLeaks Scan Report</h1>" > "$REPORT_FILENAME"
+    for DIR in $DIRS; do
+      if [[ "$DIR" != "beeshoes-backend" && "$DIR" != "beeshoes-frontend" ]]; then
+        echo "Skipping $DIR: Only beeshoes-backend and beeshoes-frontend are supported"
+        continue
       fi
-
-      echo "Directories to scan: [$DIRS]"
-      git checkout "$CI_COMMIT_SHA"
-      mkdir -p ${GITLEAKS_FOLDER}
-      SCAN_EXIT_CODE=0
-      REPORT_FILENAME="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
-      JSON_REPORT="${GITLEAKS_FOLDER}/gitleaks_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.json"
-
-      # Create .gitleaks.toml to restrict scan scope
-      cat <<EOF > .gitleaks.toml
-        [allowlist]
-        paths = [
-          "manifest/**",  # Exclude manifest directory
-          "!(beeshoes-backend/**)",  # Allow only beeshoes-backend
-          "!(beeshoes-frontend/**)"  # Allow only beeshoes-frontend
-        ]
-      EOF
-
-      # Combine scan results into a single HTML file
-      echo "<html><body><h1>GitLeaks Scan Report</h1>" > "$REPORT_FILENAME"
-      for DIR in $DIRS; do
-        if [[ "$DIR" != "beeshoes-backend" && "$DIR" != "beeshoes-frontend" ]]; then
-          echo "Skipping $DIR: Only beeshoes-backend and beeshoes-frontend are supported"
-          continue
-        fi
-        if [ -d "$DIR" ]; then
-          echo "Scanning directory: $DIR"
-          echo "Directory $DIR contents:"
-          ls -l "$DIR/"
-          echo "<h2>Results for $DIR</h2>" >> "$REPORT_FILENAME"
+      if [ -d "$DIR" ]; then
+        echo "Scanning directory: $DIR"
+        echo "Directory $DIR contents:"
+        ls -l "$DIR/"
+        echo "<h2>Results for $DIR</h2>" >> "$REPORT_FILENAME"
+        gitleaks detect --source="$DIR" \
+          --no-git \ 
+          --config-path=.gitleaks.toml \  
+          --report-format=template \
+          --report-template=basic.tmpl \
+          --verbose \
+          --append-report="$REPORT_FILENAME" || SCAN_STATUS=$?
+        if [ "${SCAN_STATUS:-0}" -ne 0 ]; then
+          echo "Secrets detected in $DIR! Generating JSON report..."
           gitleaks detect --source="$DIR" \
-            --no-git \ 
-            --config-path=.gitleaks.toml \  
-            --report-format=template \
-            --report-template=basic.tmpl \
-            --verbose \
-            --append-report="$REPORT_FILENAME" || SCAN_STATUS=$?
-          if [ "${SCAN_STATUS:-0}" -ne 0 ]; then
-            echo "Secrets detected in $DIR! Generating JSON report..."
-            gitleaks detect --source="$DIR" \
-              --no-git \
-              --config-path=.gitleaks.toml \
-              --report-path="${JSON_REPORT}.${DIR}" \
-              --report-format=json
-            cat "${JSON_REPORT}.${DIR}"
-            SCAN_EXIT_CODE=1
-          else
-            echo "No secrets detected in $DIR"
-            echo "<p>No secrets detected in $DIR</p>" >> "$REPORT_FILENAME"
-          fi
+            --no-git \
+            --config-path=.gitleaks.toml \
+            --report-path="${JSON_REPORT}.${DIR}" \
+            --report-format=json
+          cat "${JSON_REPORT}.${DIR}"
+          SCAN_EXIT_CODE=1
         else
-          echo "Directory $DIR does not exist, skipping"
-          echo "<p>Directory $DIR does not exist</p>" >> "$REPORT_FILENAME"
+          echo "No secrets detected in $DIR"
+          echo "<p>No secrets detected in $DIR</p>" >> "$REPORT_FILENAME"
         fi
-      done
-      echo "</body></html>" >> "$REPORT_FILENAME"
-      if [ "$SCAN_EXIT_CODE" -ne 0 ]; then
-        echo "Secrets detected in at least one directory! Check reports in ${GITLEAKS_FOLDER}"
-        exit 1
+      else
+        echo "Directory $DIR does not exist, skipping"
+        echo "<p>Directory $DIR does not exist</p>" >> "$REPORT_FILENAME"
       fi
+    done
+    echo "</body></html>" >> "$REPORT_FILENAME"
+    if [ "$SCAN_EXIT_CODE" -ne 0 ]; then
+      echo "Secrets detected in at least one directory! Check reports in ${GITLEAKS_FOLDER}"
+      exit 1
+    fi
   artifacts:
     paths:
     - "${GITLEAKS_FOLDER}/*.html"
@@ -333,7 +333,7 @@ gitleaks-secret-scan:
   tags:
   - devops-k8s-runner
   only:
-    - tags
+  - tags
 
 trivyfs-code-security-scan:
   stage: scan
@@ -369,7 +369,7 @@ trivyfs-code-security-scan:
   tags:
   - devops-k8s-runner
   only:
-    - tags
+  - tags
 
 snyk-scan:
   stage: scan
@@ -482,8 +482,8 @@ snyk-scan:
     echo "All Snyk reports generated."
   artifacts:
     paths:
-      - "${SNYK_FOLDER}/*.html"
-      - "${SNYK_FOLDER}/*.json"
+    - "${SNYK_FOLDER}/*.html"
+    - "${SNYK_FOLDER}/*.json"
     expire_in: 1 day
     reports:
       sast: "${SNYK_FOLDER}/snyk_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
@@ -491,7 +491,7 @@ snyk-scan:
   tags:
   - devops-k8s-runner
   only:
-    - tags
+  - tags
 
 trivy-image-security-scan:
   stage: scan
@@ -524,12 +524,12 @@ trivy-image-security-scan:
   tags:
   - devops-k8s-runner
   only:
-    - tags
+  - tags
 
 sonarqube-code-quality-scan-be:
   stage: scan
   extends:
-    - .rules-for-sonar-be
+  - .rules-for-sonar-be
   image:
     name: ${SONAR_IMAGE}
     entrypoint: [ "" ]
@@ -609,18 +609,13 @@ generate-sbom-files:
     paths:
     - sbom-files
     expire_in: 1 day
-  #when: manual
-  # tags:
-  #   - devops-k8s-runner
-  # only:
-  #   - tags
 
 upload_to_minio:
   image: ${MINIO_IMAGE}
   stage: push-artifacts
   extends:
   # - .default-develop-rules
-    - .rules-for-precheck-manual-gate
+  - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
   needs:
@@ -661,14 +656,12 @@ upload_to_minio:
   tags:
   - devops-k8s-runner
   when: manual
-  only:
-    - tags
 
 update-images-tag:
   stage: update-helm-chart
   extends:
   # - .default-develop-rules
-    - .rules-for-precheck-manual-gate
+  - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
   needs:
@@ -702,7 +695,6 @@ update-images-tag:
     git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git main
   #when: manual
   tags:
-    - devops-k8s-runner
+  - devops-k8s-runner
   only:
-    - tags
-
+  - tags

@@ -610,10 +610,10 @@ generate-sbom-files:
     - sbom-files
     expire_in: 1 day
   #when: manual
-  tags:
-  - devops-k8s-runner
-  only:
-    - tags
+  # tags:
+  #   - devops-k8s-runner
+  # only:
+  #   - tags
 
 upload_to_minio:
   image: ${MINIO_IMAGE}

@@ -77,13 +77,13 @@ variables:
   fi
   echo "-----------------------------------------"
 
-.default-develop-rules:
-  rules:
-  # Run job if it is a tag pipeline AND the tag name ends with -dev (e.g., v1.0.0-dev)
-  - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /-dev$/'
-    when: always
-  # Do not run the job otherwise
-  - when: never
+# .default-develop-rules:
+#   rules:
+#   # Run job if it is a tag pipeline AND the tag name ends with -dev (e.g., v1.0.0-dev)
+#   - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /-dev$/'
+#     when: always
+#   # Do not run the job otherwise
+#   - when: never
 
 .rules-for-precheck-manual-gate:
   rules:
@@ -102,7 +102,7 @@ variables:
 # Stage 1: Detect changes
 detect-changed-folders:
   stage: detect-changes
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   variables:
     GIT_STRATEGY: clone # Crucial for having full repo access
     GIT_DEPTH: 0 # Crucial for having full commit history
@@ -167,6 +167,7 @@ detect-changed-folders:
     expire_in: 1 day
   tags:
   - devops-shell-runner
+  only: tags
   #when: manual
 
 
@@ -175,7 +176,7 @@ generate-build-stage:
   stage: prepare-docker-build
   extends:
   - .docker-job-template
-  - .default-develop-rules
+  # - .default-develop-rules
   variables:
     GIT_STRATEGY: clone
     GIT_CHECKOUT: "true"
@@ -202,10 +203,6 @@ generate-build-stage:
       image: ${DOCKER_IMAGE}
       services:
         - ${DOCKER_IMAGE}
-      variables:
-        GIT_STRATEGY: clone 
-        GIT_CHECKOUT: true
-        GIT_CLEAN_FLAGS: -ffdx
       tags:
         - devops-k8s-runner
       before_script:
@@ -219,21 +216,19 @@ generate-build-stage:
         - docker build -t \${IMAGE} \${DIR}
         - echo "Pushing image to registry"
         - docker push \${IMAGE}
-      rules:
-        - if: '\$CI_COMMIT_TAG && \$CI_COMMIT_TAG =~ /-dev$/'
-          when: always
-        - when: never
     EOF
     done
   artifacts:
     paths:
     - docker-build-pipeline.yml
     expire_in: 1 day
+  only:
+    - tags
 
 # Stage 3: Build docker image
 trigger-docker-build:
   stage: build-docker-image
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   variables:
     GIT_STRATEGY: none
   trigger:
@@ -244,11 +239,13 @@ trigger-docker-build:
   needs:
   - job: generate-build-stage
     artifacts: true
+  only:
+    - tags
 
 # Stage 4: Security scan
 gitleaks-secret-scan:
   stage: scan
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   image: ${GITLEAKS_IMAGE}
   variables:
     GIT_STRATEGY: clone
@@ -334,10 +331,12 @@ gitleaks-secret-scan:
   allow_failure: true
   tags:
   - devops-k8s-runner
+  only:
+    - tags
 
 trivyfs-code-security-scan:
   stage: scan
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   image: ${TRIVY_IMAGE}
   variables:
     GIT_STRATEGY: clone
@@ -368,10 +367,12 @@ trivyfs-code-security-scan:
   allow_failure: true
   tags:
   - devops-k8s-runner
+  only:
+    - tags
 
 snyk-scan:
   stage: scan
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   image: ${SNYK_IMAGE}
   variables:
     GIT_STRATEGY: clone
@@ -488,10 +489,12 @@ snyk-scan:
   allow_failure: true
   tags:
   - devops-k8s-runner
+  only:
+    - tags
 
 trivy-image-security-scan:
   stage: scan
-  extends: .default-develop-rules
+  # extends: .default-develop-rules
   image: ${TRIVY_IMAGE}
   variables:
     GIT_STRATEGY: none
@@ -519,6 +522,8 @@ trivy-image-security-scan:
       sast: "${TRIVY_IMG_FOLDER}/*.html"
   tags:
   - devops-k8s-runner
+  only:
+    - tags
 
 sonarqube-code-quality-scan-be:
   stage: scan
@@ -573,7 +578,7 @@ generate-sbom-files:
   stage: push-artifacts
   extends:
   - .docker-job-template
-  - .default-develop-rules
+  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
@@ -606,12 +611,14 @@ generate-sbom-files:
   #when: manual
   tags:
   - devops-k8s-runner
+  only:
+    - tags
 
 upload_to_minio:
   image: ${MINIO_IMAGE}
   stage: push-artifacts
   extends:
-  - .default-develop-rules
+  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
@@ -650,16 +657,16 @@ upload_to_minio:
     paths:
     - $ARTIFACT_DIR
     expire_in: 1 day
-  # only:
-  # - tags
   tags:
   - devops-k8s-runner
   when: manual
+  only:
+    - tags
 
 update-images-tag:
   stage: update-helm-chart
   extends:
-  - .default-develop-rules
+  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
@@ -694,7 +701,7 @@ update-images-tag:
     git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git main
   #when: manual
   tags:
-  - devops-k8s-runner
-  # only:
-  # - tags
+    - devops-k8s-runner
+  only:
+    - tags
 

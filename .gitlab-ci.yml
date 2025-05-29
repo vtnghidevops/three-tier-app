@@ -696,5 +696,3 @@ update-images-tag:
   #when: manual
   tags:
   - devops-k8s-runner
-  only:
-  - tags

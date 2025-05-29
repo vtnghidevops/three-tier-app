@@ -620,7 +620,7 @@ upload_to_minio:
   stage: push-artifacts
   extends:
   # - .default-develop-rules
-  - .rules-for-precheck-manual-gate
+    - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
   needs:
@@ -668,7 +668,7 @@ update-images-tag:
   stage: update-helm-chart
   extends:
   # - .default-develop-rules
-  - .rules-for-precheck-manual-gate
+    - .rules-for-precheck-manual-gate
   variables:
     GIT_STRATEGY: none
   needs:

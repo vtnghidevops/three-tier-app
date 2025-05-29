@@ -193,33 +193,34 @@ generate-build-stage:
       echo "No directories to build"
       exit 0
     fi
+
     echo "Generating child pipeline"
     DIRS=$(cat changed_dirs.env)
     for DIR in $DIRS; do
       cat <<EOF >> docker-build-pipeline.yml
-    Build ${DIR} image:
-      stage: build
-      image: docker:28-dind
-      tags: 
-        - image-related
-      services:
-        - docker:28-dind
-      script:
-        - ls -l ./Application-Code/
-        - echo "Building ${DIR} image"
-        - IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
-        - docker build -t \$IMAGE ./Application-Code/${DIR}
-        - echo "Pushing image to registry"
-        - echo "\$HARBOR_PASSWD" | docker login \$HARBOR_URL -u 'robot$'\$HARBOR_USERNAME --password-stdin
-        - docker push \$IMAGE
-    EOF
+Build ${DIR} image:
+  stage: build
+  image: docker:28-dind
+  tags: 
+    - image-related
+  services:
+    - docker:28-dind
+  script:
+    - ls -l ./Application-Code/
+    - echo "Building ${DIR} image"
+    - IMAGE=\$HARBOR_URL/\$PROJECT_NAME/${DIR}:\$CI_COMMIT_SHORT_SHA
+    - docker build -t \$IMAGE ./Application-Code/${DIR}
+    - echo "Pushing image to registry"
+    - echo "\$HARBOR_PASSWD" | docker login \$HARBOR_URL -u 'robot$'\$HARBOR_USERNAME --password-stdin
+    - docker push \$IMAGE
+EOF
     done
   artifacts:
     paths:
     - docker-build-pipeline.yml
     expire_in: 1 day
   only:
-  - tags
+    - tags
 
 # Stage 3: Build docker image
 trigger-docker-build:

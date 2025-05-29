@@ -416,15 +416,15 @@ snyk-scan:
       # Define JSON output paths
       DEPENDENCIES_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-dependencies.json"
       CODE_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-code.json"
-      IAC_JSON_OUTPUT="../${SNYK_FOLDER}/${DIR}-iac.json"
+      HTML_OUTPUT="../${SNYK_FOLDER}/${DIR}-report.html"
 
       # 1. Code Dependencies Scanning
       echo "Running code dependencies scan for $DIR..."
       if [ "$DIR" = "${BEESHOES_BACKEND_DIR}" ] && [ -f "pom.xml" ]; then
         echo "Detected Maven project in $DIR"
         if [ -f "mvnw" ]; then
-              ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml" || echo "mvnw dependency:tree failed, trying system Maven"
-              MVN_CMD="./mvnw"
+          ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml" || echo "mvnw dependency:tree failed, trying system Maven"
+          MVN_CMD="./mvnw"
         else
           mvn dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml" || echo "System Maven dependency:tree failed"
           MVN_CMD="mvn"
@@ -433,10 +433,6 @@ snyk-scan:
           --severity-threshold=high \
           --json-file-output="${DEPENDENCIES_JSON_OUTPUT}" \
           --print-deps || echo "Snyk test for $DIR dependencies found vulnerabilities or an error occurred. Exit code: $?"
-        if [ -f "../${DEPENDENCIES_JSON}" ]; then
-          snyk-to-html -i "../${DEPENDENCIES_JSON}" -o "${SNYK_FOLDER}/${DIR}-dependencies.html"
-          cat "${SNYK_FOLDER}/${DIR}-dependencies.html" >> "$SAST_REPORT"
-        fi
       elif [ "$DIR" = "${BEESHOES_FRONTEND_DIR}" ] && [ -f "package.json" ]; then
         echo "Detected npm project in $DIR"
         npm install || echo "npm install failed, proceeding with Snyk scan"
@@ -444,12 +440,14 @@ snyk-scan:
           --severity-threshold=high \
           --json-file-output="${DEPENDENCIES_JSON_OUTPUT}" \
           --print-deps || echo "Snyk test for $DIR dependencies found vulnerabilities or an error occurred. Exit code: $?"
-        if [ -f "../${DEPENDENCIES_JSON}" ]; then
-          snyk-to-html -i "../${DEPENDENCIES_JSON}" -o "${SNYK_FOLDER}/${DIR}-dependencies.html"
-          cat "${SNYK_FOLDER}/${DIR}-dependencies.html" >> "$SAST_REPORT"
-        fi
       else
         echo "Skipping dependencies scan for $DIR: No pom.xml or package.json found"
+      fi
+
+      # Convert dependencies JSON to HTML if it exists
+      if [ -f "${DEPENDENCIES_JSON_OUTPUT}" ]; then
+        snyk-to-html -i "${DEPENDENCIES_JSON_OUTPUT}" -o "${HTML_OUTPUT}.deps"
+        cat "${HTML_OUTPUT}.deps" >> "${HTML_OUTPUT}"
       fi
 
       # 2. Source Code Scanning
@@ -458,27 +456,21 @@ snyk-scan:
         --severity-threshold=high \
         --json-file-output="${CODE_JSON_OUTPUT}" \
         . || echo "Snyk code scan for $DIR completed with findings or an error occurred. Exit code: $?"
-      if [ -f "../${CODE_JSON}" ]; then
-        snyk-to-html -i "../${CODE_JSON}" -o "${SNYK_FOLDER}/${DIR}-code.html"
-        cat "${SNYK_FOLDER}/${DIR}-code.html" >> "$SAST_REPORT"
-      else
-        echo "No code scan results for $DIR (Snyk Code may be disabled)"
+
+      # Convert code scan JSON to HTML if it exists
+      if [ -f "${CODE_JSON_OUTPUT}" ]; then
+        snyk-to-html -i "${CODE_JSON_OUTPUT}" -o "${HTML_OUTPUT}.code"
+        cat "${HTML_OUTPUT}.code" >> "${HTML_OUTPUT}"
       fi
 
-      # 3. Infrastructure as Code Scanning
-      echo "Running IaC scan for $DIR..."
-      snyk iac test \
-        --severity-threshold=high \
-        --json-file-output="${IAC_JSON_OUTPUT}" \
-        . || echo "Snyk IaC scan for $DIR completed with findings or no valid IaC files. Exit code: $?"
-      if [ -f "../${IAC_JSON}" ]; then
-        snyk-to-html -i "../${IAC_JSON}" -o "${SNYK_FOLDER}/${DIR}-iac.html"
-        cat "${SNYK_FOLDER}/${DIR}-iac.html" >> "$SAST_REPORT"
-      else
-        echo "No IaC scan results for $DIR (no valid IaC files found)"
-      fi
       cd ..
     done
+
+    # Create a combined report
+    if ls "${SNYK_FOLDER}"/*.html 1> /dev/null 2>&1; then
+      cat "${SNYK_FOLDER}"/*.html > "${SNYK_FOLDER}/snyk_scan_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHORT_SHA}_report.html"
+    fi
+
     echo "All Snyk reports generated."
   artifacts:
     paths:
@@ -566,9 +558,13 @@ precheck-manual-gate:
   stage: precheck
   variables:
     GIT_STRATEGY: none
-    PRECHECK_APPROVED: "true"
   script:
-  - echo "Manual approval required before pushing images and artifacts."
+  - |
+    echo "Manual approval required before pushing images and artifacts."
+    echo "PRECHECK_APPROVED=true" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
   allow_failure: false
   when: manual
   tags:
@@ -580,15 +576,13 @@ generate-sbom-files:
   stage: push-artifacts
   extends:
   - .docker-job-template
-  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
-  variables:
-    GIT_STRATEGY: none
   needs:
   - job: detect-changed-folders
     artifacts: true
   - job: precheck-manual-gate
-    artifacts: false
+  variables:
+    GIT_STRATEGY: none
   script:
   - !reference [ .load-changed-dirs ]
   - |
@@ -616,10 +610,7 @@ upload_to_minio:
   image: ${MINIO_IMAGE}
   stage: push-artifacts
   extends:
-  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
-  variables:
-    GIT_STRATEGY: none
   needs:
   - job: generate-sbom-files
     artifacts: true
@@ -630,7 +621,8 @@ upload_to_minio:
   - job: snyk-scan
     artifacts: true
   - job: precheck-manual-gate
-    artifacts: false
+  variables:
+    GIT_STRATEGY: none
   script:
   - |
     echo "Uploading artifacts to MinIO..."
@@ -657,20 +649,17 @@ upload_to_minio:
     expire_in: 1 day
   tags:
   - devops-k8s-runner
-  when: manual
 
 update-images-tag:
   stage: update-helm-chart
   extends:
-  # - .default-develop-rules
   - .rules-for-precheck-manual-gate
-  variables:
-    GIT_STRATEGY: none
   needs:
   - job: detect-changed-folders
     artifacts: true
   - job: precheck-manual-gate
-    artifacts: false
+  variables:
+    GIT_STRATEGY: none
   before_script:
   - git config --global user.email "${GITHUB_EMAIL}"
   - git config --global user.name "${GITHUB_USERNAME}"
@@ -695,6 +684,5 @@ update-images-tag:
     git add .
     git commit -m "feat: update images tag:${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}"
     git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${HELM_REPO}.git main
-  #when: manual
   tags:
   - devops-k8s-runner

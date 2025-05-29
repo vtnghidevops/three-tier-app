@@ -172,7 +172,7 @@ detect-changed-folders:
   #when: manual
 
 
-  # Stage 2: Prepare docker build
+# Stage 2: Prepare docker build
 generate-build-stage:
   stage: prepare-docker-build
   extends:
@@ -199,7 +199,7 @@ generate-build-stage:
     echo "Creating docker-build-pipeline.yml..."
     for DIR in $DIRS; do
       cat <<EOF >> docker-build-pipeline.yml
-    build ${DIR} image:
+    build-${DIR}-image:
       stage: build
       image: ${DOCKER_IMAGE}
       services:
@@ -215,7 +215,7 @@ generate-build-stage:
         - echo "Building ${DIR} image"
         - IMAGE=\${HARBOR_URL}/\${HARBOR_REPO}/\${DIR}:\${CI_COMMIT_TAG}-\${CI_COMMIT_SHORT_SHA}
         - echo "IMAGE: \${IMAGE}"
-        - docker build -t \${IMAGE} \${DIR}
+        - docker build -t \${IMAGE} ${DIR}
         - echo "Pushing image to registry"
         - docker push \${IMAGE}
     EOF

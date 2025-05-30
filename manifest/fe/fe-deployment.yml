@@ -4,7 +4,7 @@ metadata:
   name: beeshoes-fe-deployment
   namespace: beeshoes
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: beeshoes-fe
@@ -27,11 +27,11 @@ spec:
               protocol: TCP
           resources:
             requests:
+              cpu: 125m
+              memory: 250Mi
+            limits:
               cpu: 250m
               memory: 500Mi
-            limits:
-              cpu: 500m
-              memory: 1000Mi
       imagePullSecrets:
         - name: harbor-secret
           

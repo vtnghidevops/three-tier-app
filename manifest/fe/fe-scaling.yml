@@ -8,6 +8,6 @@ spec:
     apiVersion: apps/v1
     kind: deployment
     name: beeshoes-fe-deployment
-  minReplicas: 1
-  maxReplicas: 2
+  minReplicas: 2
+  maxReplicas: 4
   targetCPUUtilizationPercentage: 50 # Over 50% use CPU -> Scaling 

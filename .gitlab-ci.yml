@@ -694,7 +694,7 @@ update-images-tag:
 
     for DIR in $DIRS; do 
       echo "Updating image tag for $DIR"
-      yq -i ".$DIR.image.tag = \"${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml
+      yq -i ".$DIR.image.tag = \"${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}\"" ./values.yaml
     done
 
     git add .

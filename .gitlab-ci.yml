@@ -37,7 +37,7 @@ variables:
   # Git & Deployment
   GITHUB_USERNAME: "philogn"
   HELM_REPO: "Three-tier-app-HelmChart"
-  HELM_VALUES_PATH: "./umbrella-chart/values.yaml"
+  HELM_VALUES_PATH: "./values.yaml"
 
   # Base paths for reports
   SECURITY_SCAN_BASE: "~/security-scan-results"
@@ -697,7 +697,7 @@ update-images-tag:
 
     for DIR in $DIRS; do 
       echo "Updating image tag for $DIR"
-      yq -i ".$DIR.image.tag = \"${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}\"" ./umbrella-chart/values.yaml
+      yq -i ".$DIR.image.tag = \"${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}\"" ./values.yaml
     done
 
     git add .

@@ -540,8 +540,8 @@ sonarqube-code-quality-scan-be:
     name: ${SONAR_IMAGE}
     entrypoint: [ "" ]
   variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
-    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
+    GIT_DEPTH: "0" 
   cache:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
@@ -556,9 +556,12 @@ sonarqube-code-quality-scan-be:
     if [ -f "${BEESHOES_BACKEND_DIR}/pom.xml" ]; then
       echo "Running SonarQube scan for ${BEESHOES_BACKEND_DIR} (Maven project)"
       cd "${BEESHOES_BACKEND_DIR}"
-      mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-        -Dsonar.host.url=$SONAR_URL \
-        -Dsonar.login=$SONAR_TOKEN || echo "SonarQube scan completed for ${BEESHOES_BACKEND_DIR} with possible findings"
+      # mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+      #   -Dsonar.host.url=$SONAR_URL \
+      #   -Dsonar.login=$SONAR_TOKEN || echo "SonarQube scan completed for ${BEESHOES_BACKEND_DIR} with possible findings"
+      mvn clean sonar:sonar -DskipTests=true \
+          -Dsonar.host.url=$SONAR_URL \
+          -Dsonar.login=$SONAR_TOKEN
       cd ..
     else
       echo "Skipping ${BEESHOES_BACKEND_DIR}: Not a recognized project or no pom.xml found"

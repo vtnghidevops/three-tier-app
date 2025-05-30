@@ -227,7 +227,7 @@ generate-build-stage:
         - docker build -t \${IMAGE} ./${DIR}
         - echo "Pushing image to registry"
         - docker push \${IMAGE}
-  EOF
+    EOF
       else
         echo "Processing backend directory: $DIR"
         cat <<EOF >> docker-build-pipeline.yml
@@ -254,7 +254,7 @@ generate-build-stage:
         - docker build -t \${IMAGE} ./${DIR}
         - echo "Pushing image to registry"
         - docker push \${IMAGE}
-  EOF
+    EOF
       fi
     done
   artifacts:

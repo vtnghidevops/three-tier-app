@@ -2,10 +2,6 @@
 FROM node:22.16.0-alpine AS build
 
 WORKDIR /app
-# Add arguments for environment variables
-ARG REACT_APP_API_URL
-ENV REACT_APP_API_URL=${REACT_APP_API_URL}
-
 RUN rm -rf node_modules
 COPY . .
 RUN yarn install

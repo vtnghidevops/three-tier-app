@@ -1,11 +1,11 @@
 import { requestAdress, requestCustomer } from "../../../helper/request";
 
 const GHN_TOKEN = process.env.REACT_APP_GHN_TOKEN;
-const GHN_SHOP_ID = process.env.REACT_APP_GHN_SHOP_ID;
-const GHN_FROM_DISTRICT_ID = process.env.REACT_APP_GHN_FROM_DISTRICT_ID;
-const GHN_FROM_WARD_CODE = process.env.REACT_APP_GHN_FROM_WARD_CODE;
-const GHN_SERVICE_ID = process.env.REACT_APP_GHN_SERVICE_ID;
-const GHN_BASE_URL = process.env.REACT_APP_GHN_BASE_URL;
+const GHN_SHOP_ID = 4374133;
+const GHN_FROM_DISTRICT_ID = 1485;
+const GHN_FROM_WARD_CODE = "1A0607";
+const GHN_SERVICE_ID = 53320;
+const GHN_BASE_URL = "https://online-gateway.ghn.vn/shiip/public-api";
 
 export class AddressClientApi {
   static getAllProvince = () => {

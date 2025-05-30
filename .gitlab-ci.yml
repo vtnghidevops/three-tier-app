@@ -37,7 +37,7 @@ variables:
   # Git & Deployment
   GITHUB_USERNAME: "philogn"
   HELM_REPO: "Three-tier-app-HelmChart"
-  HELM_VALUES_PATH: "./umbrella-chart/values.yaml"
+  HELM_VALUES_PATH: "./values.yaml"
 
   # Base paths for reports
   SECURITY_SCAN_BASE: "~/security-scan-results"
